@@ -21,6 +21,8 @@
 		@include alt(100%,145px);
 		background: url(../images/logo.png) no-repeat;
 		background-position: center 45px;
+		//test
+		opacity: 0;
 	}
 	.t{
 		@include alt(100%,18px,0,145px);
@@ -29,6 +31,8 @@
 		padding: 0 15px;
 		text-align: center;
 		z-index: 9;
+		//test
+		opacity: 0;
 	}
 	.logoutbtn{
 		@include alt(100%,18px,0,180px);
@@ -108,6 +112,9 @@
 					a{
 						@include r;
 						@include font(15px,24px,#ffffff);
+						&.on,&:hover{
+							color: #87bace;
+						}
 					}
 				}
 			}
@@ -193,6 +200,7 @@
 		padding-right: 25px;
 		padding-bottom: 100px;
 		z-index: 9;
+		text-align: center;
 		.title{
 			@include r;
 			@include font(26px,26px,#000000,bolder);
@@ -200,18 +208,33 @@
 			margin-bottom: 18px;
 			text-align: center;
 		}
-		.searchbox{
+		.deleteBrands{
 			@include r;
+			text-align: center;
+			a{
+				@include font(14px,14px,#fff);
+				background-color: #666;
+				padding: 5px 10px;
+				display: inline-block;
+				&:hover{
+					background-color: red;
+				}
+			}
+		}
+		.searchbox{
+			position: relative;
+			display: inline-block;
+			max-width: 100%;
 			box-sizing:border-box;
 			padding: 10px;
 			background-color: #1e1e1e;
 			.lt{
 				@include r;
 				box-sizing:border-box;
-				padding-right: 168px;
+				padding-right: 88px;
 				min-height: 30px;
 				.box{
-					@include r(32%,30px);
+					@include r(100%,30px);
 					margin-right: 1%;
 					box-sizing:border-box;
 					padding-left: 70px;
@@ -229,7 +252,7 @@
 				}
 			}
 			.rt{
-				@include art(168px,100%,10px,10px);
+				@include art(88px,100%,0,10px);
 				z-index: 9;
 				.bt{
 					@include r(80px,30px);
@@ -239,7 +262,7 @@
 					background-color: #666666;
 					cursor: pointer;
 					a{
-						@include alt;
+						@include r;
 						@include font(15px,30px,#fff);
 					}
 					&:hover{
@@ -254,6 +277,7 @@
 			margin-top: 20px;
 			box-sizing:border-box;
 			border:1px solid #1e1e1e;
+			text-align: left;
 			&.column-9{
 				.t{
 					.column{
@@ -333,6 +357,8 @@
 					padding-left: 35px;
 					padding-right: 150px;
 					background-color: #e5e5e5;
+					padding-top: 10px;
+					border-bottom: 1px solid #000;
 					&:nth-child(2n){
 						background-color: #efefef;
 					}
@@ -341,16 +367,118 @@
 						padding-left: 35px;
 						padding-right: 150px;
 						margin-left: -35px;
-						border-bottom: 1px solid #000;
 						overflow: hidden;
 					}
 					.secData{
-						@include r;
-						padding-left: 35px;
-						padding-right: 150px;
-						margin-left: -35px;
-						border-bottom: 1px solid #000;
+						@include r(calc(100% + 150px));
 						padding-bottom: 25px;
+						padding-top: 25px;
+						margin-left: -1px;
+						border-left: 1px solid #fff;
+						.st{
+							@include r;
+							@include font(14px,18px,#fff,bolder);
+							text-align: center;
+							background-color: #9e9e9e;
+							padding: 5px 0;
+						}
+						.eqi{
+							@include r(35%);
+							.equData{
+								@include r;
+								margin-bottom: 5px;
+								border-bottom: 1px solid #fff;
+								padding: 5px 0;
+								span{
+									@include r;
+									@include font(12px,21px,#000);
+									box-sizing: border-box;
+									padding-right: 90px;
+									z-index: 0;
+									padding-left: 10px;
+								}
+								.btn{
+									@include art(70px,100%,20px,5px);
+									z-index: 1;
+									a{
+										@include r(30px);
+										@include font(12px,21px,#fff);
+										background-color: #666666;
+										text-align: center;
+										margin-right: 10px;
+										&:last-child{
+											margin-right: 0;
+										}
+										&:hover{
+											color: #87bace;
+										}
+									}
+								}
+							}
+						}
+						.recommend{
+							@include r(15%);
+							text-align: center;
+							span{
+								@include font(12px,18px,#000);								
+								position: relative;
+								width: auto;
+								display: inline-block;
+								box-sizing: border-box;
+								margin-right: 10px;
+								text-align: center;
+								margin-top: 5px;
+							}
+							.change{
+								@include font(12px,21px,#fff);
+								position: relative;
+								width: 30px;
+								display: inline-block;
+								background-color: #666666;
+								text-align: center;
+								cursor: pointer;
+								margin-top: 5px;
+								&:hover{
+									color: #87bace;
+								}
+							}
+						}
+						.carsImg{
+							@include r(50%);
+							.photoData{
+								@include r(49%);
+								margin-bottom: 5px;
+								padding: 5px 0;
+								margin-left: 1%;
+								&:nth-child(2n){
+									margin-left: 0;
+									margin-right: 1%;
+								}
+								.photo{
+									@include r;
+									img{
+										width: 100%;
+										height: auto;
+									}
+								}
+								.btn{
+									@include r;
+									z-index: 1;
+									margin-top: 5px;
+									a{
+										@include r(30px);
+										@include font(12px,21px,#fff);
+										background-color: #666666;
+										text-align: center;
+										margin-right: 5px;
+										margin-bottom: 5px;
+										&:hover{
+											color: #87bace;
+										}
+									}
+								}
+							}
+						}
 					}
 					.slbox{
 						@include alt(35px,100%);
