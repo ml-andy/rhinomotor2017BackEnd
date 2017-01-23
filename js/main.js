@@ -2,28 +2,19 @@
 	var webData ={};
 	webData.wrp=$('.wrapper');
 	webData.mlabApikey = "n6FXodWWCdM14KrePZHrRPPovbzboRn6";
-	webData.imgurappid = "752b0363900112d";
+	webData.imgurappid = "4dd8fdf80527e2a";
 	webData.creatUsererrortxt = "請填寫完整資料";
 	webData.motifyerrortxt = "上一筆資料還在修改中，請先完成上一筆修改再繼續。";
+	var o = {
+		wrp: $('.wrapper')
+	}
 
 	//init
 	try{webData.nowpage = getUrlVars()['page'].replace('#access_token','');}
 	catch(err){webData.nowpage = 1;}
-	if($('.sec_menu').length>0){
-		$('.sec_menu a').eq(webData.nowpage-1).addClass('on');
-		$('.title').eq(0).html($('.sec_menu a').eq(webData.nowpage-1).text());
-	}	
 
-	if(webData.wrp.hasClass('about')) getDataCollection('aboutus_page',aboutfunction);
+	if(webData.wrp.hasClass('cars')) getDataCollection('carsPage',carsfunction);
 	else if(webData.wrp.hasClass('news')) getDataCollection('news_page',newsfunction);
-	else if(webData.wrp.hasClass('learn')){
-		webData.learnload=0;
-		webData.learndata = [];
-		getDataLearnCollection('learning_page',learnfunction);
-		getDataLearnCollection('learning_photo_page',learnfunction);
-	}
-	else if(webData.wrp.hasClass('awards')) getDataCollection('awards',awardsfunction);
-	else if(webData.wrp.hasClass('link')) getDataCollection('otherlink',linkfunction);
 	else if(webData.wrp.hasClass('contact')){
 		webData.contactload=0;
 		webData.learndata = [];
@@ -36,8 +27,10 @@
 		getDataLearnCollection('index_banner',indexfunction);
 		getDataLearnCollection('index_photo',indexfunction);
 		getDataLearnCollection('index_video',indexfunction);
-	}
 
+		$(".wrapper .menu").mCustomScrollbar({scrollInertia:300,scrollEasing:'linear'});
+		// o.menulispan = $(".wrapper .menu li").find('span');
+	}
 	else showLoading(false);
 
 	//Addlistener	
@@ -49,8 +42,11 @@
 	$("#imgInput").change(function(){readURL(this,$(this));});
 	$("#newsimgInput").change(function(){newsreadURL(this,$(this),0);});
 	$("#newsimgInput2").change(function(){newsreadURL(this,$(this),1);});
-	$('.userMenu .logoutbtn').click(function(){logout();});	
+	$('.logoutbtn').click(function(){logout();});	
 	$(".new .gobtn").click(function(){insertPaper();});
+	// o.menulispan.click(function(){
+	// 	menulispanclick($(this));
+	// });
 
 	$(window).load(function(){
 		if(checkLogin()){
@@ -67,6 +63,16 @@
 	});
 
 	//Event	
+	function menulispanclick(_o){
+		var _height = _o.height();
+		if(_o.parent().hasClass('on')){
+			_o.parent().removeClass('on');
+		}else{
+			_o.parent().addClass('on');
+			_height = _o.height() + _o.parent().find('.box').outerHeight(true);
+		}
+		_o.parent().css('height',_height);
+	}
 	function insertmainPaper(_name){
 		showLoading(true);
 		if(_name == "banner"){
@@ -454,23 +460,48 @@
 		$('.menuin a').removeClass('on').eq(2).addClass('on');
 		showLoading(false);
 	}
-	function aboutfunction(data){
-		$('.paper').html('');
-		for(i in webData.newPaperdata){
-			var _img;
-			if(!webData.newPaperdata[i].cover) _img='<img src="images/space.png">';
-			else _img = '<img src="' + webData.newPaperdata[i].cover + '">';
-			$('.paper').eq(0).append('<li><div class="postphoto">'+_img+'</div><div class="posttitle">'+webData.newPaperdata[i].title+'</div><div class="postdes">'+webData.newPaperdata[i].info+'</div><div class="postid">　</div><div class="btn"><div title="修改" class="motify"></div></div></li>');
+	function carsfunction(data){
+		//menulist
+		$('.menua.on').replaceWith('<li><span>產品介紹</span><div class="box"></div></li>');
+		for(i in data){
+			$('.menu ul li .box').append('<a class="menuain" href="javascript:;" data-brands="'+i+'">'+data[i].brands+'</a>');
 		}
-		for(i in webData.newPaperdata[0].list){
-			var _img;
-			if(!webData.newPaperdata[0].list[i].pic) _img='<img src="images/space.png">';
-			else _img = '<img src="' + webData.newPaperdata[0].list[i].pic + '">';
-			$('.paper').eq(1).append('<li><div class="postphoto">'+_img+'</div><div class="posttitle">'+webData.newPaperdata[0].list[i].name+'</div><div class="postdes">'+webData.newPaperdata[0].list[i].des+'</div><div class="postid">　</div><div class="btn"><div title="修改" class="motify"></div><div title="刪除" class="delbtn"></div></div></li>');
+		o.nowDataBrands = 0;
+		o.menulispan = $(".wrapper .menu li").find('span');
+		o.menulispan.click(function(){
+			menulispanclick($(this));
+		});
+		o.menulispan.trigger('click');
+
+		//content list
+		o.cot = $('.content .list ul');
+		o.cot.html('');
+		for(j in data){
+			for(k in data[j].cars){
+				o.cot.append('<li><div class="mainData"><div class="slbox">'+k+'</div><div class="column name">'+data[j].cars[k].name+'</div><div class="column price">'+data[j].cars[k].price+'</div><div class="column date">'+data[j].cars[k].date+'</div><div class="column info">'+data[j].cars[k].info+'</div><div class="column infoAll">'+data[j].cars[k].infoAll+'</div><div class="column des">'+data[j].cars[k].des+'</div><div class="function"><a href="javascript:;">修改</a><a href="javascript:;">刪除</a></div></div><div class="secData"></div></li>');
+				//equipped
+				o.cot.find('li:last .secData').append('<div class="eqi"><div class="st">配備</div></div>');
+				for(x in data[j].cars[k].equipped){
+					o.cot.find('li:last .secData .eqi').append('<div class="equData"><span>'+data[j].cars[k].equipped[x]+'</span><div class="btn"><a href="javascript:;" class="modify">修改</a><a href="javascript:;" class="delet">刪除</a></div></div>');
+				}
+				//recommend
+				var _txt ='否';
+				if(data[j].cars[k].recommend) _txt = '是';
+				o.cot.find('li:last .secData').append('<div class="recommend" data-recd="'+data[j].cars[k].recommend+'"><div class="st">推薦</div><span>'+_txt+'</span><div class="btn change">更改</div></div>');
+
+				//carsImg
+				o.cot.find('li:last .secData').append('<div class="carsImg"><div class="st">圖片</div></div>');
+				for(x in data[j].cars[k].carsImg){
+					o.cot.find('li:last .secData .carsImg').append('<div class="photoData"><div class="photo"><img src="'+data[j].cars[k].carsImg[x]+'"></div><div class="btn"><a href="javascript:;" class="modify">修改</a><a href="javascript:;" class="delet">刪除</a></div></div>');
+				}
+			}
 		}
-		afterinsertAboutdata();
+
+
+		// afterinsertCarsdata();
+		showLoading(false);
 	}
-	function afterinsertAboutdata(){
+	function afterinsertCarsdata(){
 		$('.paper .delbtn').click(function(){	
 			if($(this).parent().find('.motify').hasClass('on')){
 				$(this).parent().find('.motify').removeClass('on');
@@ -1142,7 +1173,7 @@
 	}
 	function getDataCollection(_collectname,_callback){
 		$.ajax({
-			url: 'https://api.mlab.com/api/1/databases/chinesechess2016/collections/'+_collectname+webData.nowpage+'?s={"_id":-1}&apiKey='+ webData.mlabApikey,
+			url: 'https://api.mlab.com/api/1/databases/rhinomotor2017/collections/'+_collectname+'?s={"_id":-1}&apiKey='+ webData.mlabApikey,
 			type: 'GET',
 			contentType: 'application/json',
 			success: function(data) {
@@ -1178,7 +1209,7 @@
 		return _d;
 	}
 	function menuaclick(_o){
-		window.location.href = _o.attr('gopage') + "#access_token=" + window.location.href.split('#access_token=')[1];
+		window.location.href = _o.attr('data-page') + "#access_token=" + window.location.href.split('#access_token=')[1];
 	}
 	function logout(){
 		$.cookie("useraccount", '');

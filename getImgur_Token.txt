@@ -1,4 +1,4 @@
-https://api.imgur.com/oauth2/authorize?response_type=token&client_id=752b0363900112d
+https://api.imgur.com/oauth2/authorize?response_type=token&client_id=4dd8fdf80527e2a
 
 
 

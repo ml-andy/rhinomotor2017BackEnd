@@ -14,9 +14,23 @@
   width:$wt;
   height: $ht;  
   float: left;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  margin: 0;
   @content;
 }
-@mixin a($wt:100%,$ht:100%,$left:0,$top:0,$mleft:0,$mtop:0){
+@mixin am($wt:100%,$ht:100%,$left:50%,$top:50%){
+  position:absolute;
+  width:$wt;
+  height: $ht;  
+  top: $top;
+  left:$left;
+  @include transform(translate(-50%,-50%));
+  @content;
+}
+@mixin alt($wt:100%,$ht:100%,$left:0,$top:0,$mleft:0,$mtop:0){
   position:absolute;
   width:$wt;
   height: $ht;  
@@ -26,7 +40,46 @@
   margin-top: $mtop; 
   @content;
 }
-@mixin f($wt:100%,$ht:100%,$left:0,$top:0,$mleft:0,$mtop:0){
+@mixin art($wt:100%,$ht:100%,$right:0,$top:0,$mright:0,$mtop:0){
+  position:absolute;
+  width:$wt;
+  height: $ht;  
+  top: $top;
+  right:$right;
+  margin-right:$mright;
+  margin-top: $mtop; 
+  @content;
+}
+@mixin alb($wt:100%,$ht:100%,$left:0,$bottom:0,$mleft:0,$mbottom:0){
+  position:absolute;
+  width:$wt;
+  height: $ht;  
+  bottom: $bottom;
+  left:$left;
+  margin-left:$mleft;
+  margin-bottom: $mbottom; 
+  @content;
+}
+@mixin arb($wt:100%,$ht:100%,$right:0,$bottom:0,$mright:0,$mbottom:0){
+  position:absolute;
+  width:$wt;
+  height: $ht;  
+  bottom: $bottom;
+  right:$right;
+  margin-right:$mright;
+  margin-bottom: $mbottom; 
+  @content;
+}
+@mixin fm($wt:100%,$ht:100%,$left:50%,$top:50%){
+  position:fixed;
+  width:$wt;
+  height: $ht;  
+  top: $top;
+  left:$left;
+  @include transform(translate(-50%,-50%));
+  @content;
+}
+@mixin flt($wt:100%,$ht:100%,$left:0,$top:0,$mleft:0,$mtop:0){
   position:fixed;
   width:$wt;
   height: $ht;  
@@ -34,6 +87,36 @@
   left:$left;
   margin-left:$mleft;
   margin-top: $mtop; 
+  @content;
+}
+@mixin frt($wt:100%,$ht:100%,$right:0,$top:0,$mright:0,$mtop:0){
+  position:fixed;
+  width:$wt;
+  height: $ht;  
+  top: $top;
+  right:$right;
+  margin-right:$mright;
+  margin-top: $mtop; 
+  @content;
+}
+@mixin flb($wt:100%,$ht:100%,$left:0,$bottom:0,$mleft:0,$mbottom:0){
+  position:fixed;
+  width:$wt;
+  height: $ht;  
+  bottom: $bottom;
+  left:$left;
+  margin-left:$mleft;
+  margin-bottom: $mbottom; 
+  @content;
+}
+@mixin frb($wt:100%,$ht:100%,$right:0,$bottom:0,$mright:0,$mbottom:0){
+  position:fixed;
+  width:$wt;
+  height: $ht;  
+  bottom: $bottom;
+  right:$right;
+  margin-right:$mright;
+  margin-bottom: $mbottom; 
   @content;
 }
 @mixin font($fs:15px,$lh:27px,$co:#FFF,$fw:normal,$ff:"微軟正黑體"){

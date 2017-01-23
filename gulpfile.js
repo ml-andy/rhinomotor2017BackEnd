@@ -28,7 +28,7 @@ gulp.task('js',function(){
 });
 gulp.task('connect', function() {
   $.connect.server({
-  	root: 'D:/yihsien/js-mongoDB_mLab/andy/',
+  	root: './andy/',
   	livereload: true
   });
 });
