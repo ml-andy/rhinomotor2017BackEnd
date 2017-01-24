@@ -24,7 +24,7 @@
 	// $("#indeximgInput2").change(function(){indexreadURL(this,$(this),1);});
 	// $('.maingobtn').click(function(){insertmainPaper($(this).parent().attr('nam'));});
 	// $('.gogamebtn').click(function(){insertgame();});
-	
+	$('.menua').click(function(){menuaclick($(this));});
 	// $("#imgInput").change(function(){readURL(this,$(this));});
 	// $("#newsimgInput").change(function(){newsreadURL(this,$(this),0);});
 	// $("#newsimgInput2").change(function(){newsreadURL(this,$(this),1);});
@@ -33,19 +33,6 @@
 	// o.menulispan.click(function(){
 	// 	menulispanclick($(this));
 	// });
-	$('.menua').click(function(){menuaclick($(this));});
-	$('.searchbox .submit').click(function(){
-		showLoading(true);
-		var _brands = $('.searchbox .addBrands').val();
-		if(_brands!='' || _brands!=undefined) addBrands(o.nowPage,_brands);
-		else{
-			alert(webData.creatUsererrortxt);
-			showLoading(false);
-		}
-	});
-	$('.deleteBrands').click(function(){
-		if(window.confirm("確定刪除?")) deletBrands(o.nowPage,o.nowDataBrands);
-	});
 
 	$(window).load(function(){
 		if(checkLogin()){
@@ -72,26 +59,40 @@
 		}
 		_o.parent().css('height',_height);
 	}
-	function carsfunction(data){
+	function carsfunction(data,nowDataBrands){
 		o.nowData = data;
+		webData.motifyPapering = false;
 		//menulist
 		$('.menua.on').replaceWith('<li><span>產品介紹</span><div class="box"></div></li>');
+		$('.menu ul li .box').html('');
 		for(i in data){
 			$('.menu ul li .box').append('<a class="menuain" href="javascript:;" data-brands="'+i+'">'+data[i].brands+'</a>');
 		}
-		o.nowDataBrands = 0;
 		o.menulispan = $(".wrapper .menu li").find('span');
 		o.menulispan.click(function(){
 			menulispanclick($(this));
 		});
-		o.menulispan.trigger('click');
+		if(!o.menulispan.parent().hasClass('on')) o.menulispan.trigger('click');
 		o.menulia = $(".wrapper .menu li").find('a');
 		o.menulia.click(function(){
 			afterinsertCarsdata($(this).attr('data-brands'));
 		});
+		$('.searchbox .submit').click(function(){
+			showLoading(true);
+			var _brands = $('.searchbox .addBrands').val();
+			console.log($('.searchbox .addBrands').val());
+			if(_brands!='' || _brands!=undefined) addBrands(o.nowPage,_brands);
+			else{
+				alert(webData.creatUsererrortxt);
+				showLoading(false);
+			}
+		});
+		$('.deleteBrands').click(function(){
+			if(window.confirm("確定刪除嗎?")) deletBrands(o.nowPage,o.nowDataBrands);
+		});
 
 		//content list
-		afterinsertCarsdata(o.nowDataBrands);
+		afterinsertCarsdata(nowDataBrands);
 	}
 	function afterinsertCarsdata(_n){
 		var data = o.nowData;
@@ -118,33 +119,26 @@
 				o.cot.find('li:last .secData .carsImg').append('<div class="photoData"><div class="photo"><img src="'+data[o.nowDataBrands].cars[k].carsImg[x]+'"></div><div class="btn"><a href="javascript:;" class="modify">修改</a><a href="javascript:;" class="delet">刪除</a></div></div>');
 			}
 		}
-		$('.function .motify').click(function(){
+		$('.function .motify').click(function(){			
 			if($(this).hasClass('on')){
-				$(this).removeClass('on');
-				// motifyPaperEnd($(this).parent().parent().index(),$(this).parent().parent().parent().attr('num'));
+				$(this).removeClass('on');				
+				motifyPaperEnd($(this).parent().parent().find('.slbox').text());
 			}
 			else{
 				$(this).addClass('on');
-				motifyPaper(true,o.nowDataBrands,$(this).parent().parent().find('.slbox').text());
+				motifyPaper(true,$(this).parent().parent().find('.slbox').text());
 			}
 		});
-		// $('.paper .delbtn').click(function(){	
-		// 	if($(this).parent().find('.motify').hasClass('on')){
-		// 		$(this).parent().find('.motify').removeClass('on');
-		// 		motifyPaper(false,$(this).parent().parent().index(),$(this).parent().parent().parent().attr('num'));
-		// 	}
-		// 	else deletPaper($(this).parent().parent().index(),$(this).parent().parent().parent().attr('num'));			
-		// });
-		// $('.paper .motify').click(function(){			
-		// 	if($(this).hasClass('on')){
-		// 		$(this).removeClass('on');				
-		// 		motifyPaperEnd($(this).parent().parent().index(),$(this).parent().parent().parent().attr('num'));
-		// 	}
-		// 	else{
-		// 		$(this).addClass('on');
-		// 		motifyPaper(true,$(this).parent().parent().index(),$(this).parent().parent().parent().attr('num'));
-		// 	}
-		// });
+		$('.function .delete').click(function(){			
+			if($(this).parent().find('.motify').hasClass('on')){
+				$(this).parent().find('.motify').removeClass('on');
+				motifyPaper(false,$(this).parent().parent().find('.slbox').text());
+			}
+			else{
+				if(window.confirm("確定刪除嗎?")) deletPaper($(this).parent().parent().find('.slbox').text());
+			}
+		});
+		
 		$('.menu ul li .box a').removeClass('on').eq(o.nowDataBrands).addClass('on');
 		showLoading(false);
 	}
@@ -184,12 +178,12 @@
 			}
 		});
 	}
-	/*不要動*/
-	
 	function motifyPaper(_t,_n,_num){
+		var _tmp = $('.list').find('li').eq(_n);
 		if(_t){
 			if(webData.motifyPapering){
 				alert(webData.motifyerrortxt);
+				_tmp.find('.motify').removeClass('on');
 				// if(_num){
 				// 	for(var i = 0; i<$('ul').length;i++){
 				// 		if($('ul').eq(i).attr('num')==_num) $('ul').eq(i).find('li').eq(_n).find('.motify').removeClass('on');
@@ -200,96 +194,94 @@
 			}
 			else webData.motifyPapering=true;
 		}else webData.motifyPapering=false;
-		//News
-		if(webData.wrp.hasClass('news')){
-			var _tmp = $('.paper').find('li').eq(_n);
+		//cars
+		if(webData.wrp.hasClass('cars')){
+			var _tmp = $('.list').find('li').eq(_n);
 			if(_t){				
-				_tmp.find('.newstitle').html('<textarea>'+_tmp.find('.newstitle').html().replace(/<br>/g,'\n')+'</textarea>');
-				_tmp.find('.newsbword').html('<textarea>'+_tmp.find('.newsbword').html().replace(/<br>/g,'\n')+'</textarea>');
-				_tmp.find('.newssword').html('<textarea>'+_tmp.find('.newssword').html().replace(/<br>/g,'\n')+'</textarea>');
-				_tmp.find('.newsbpic').prepend('<input type="file" name="file" id="imgInputMotify" accept="image/*" capture="camera"><label class="imgInputlabel" for="imgInputMotify"><span>點擊更換</span></label>');
-				$("#imgInputMotify").change(function(){readURL(this,$(this),0);});
-				_tmp.find('.newsspic').prepend('<input type="file" name="file" id="imgInputMotify2" accept="image/*" capture="camera"><label class="imgInputlabel" for="imgInputMotify2"><span>點擊更換</span></label>');
-				$("#imgInputMotify2").change(function(){readURL(this,$(this),1);});
+				_tmp.find('.name').html('<textarea>'+_tmp.find('.name').html().replace(/<br>/g,'\n')+'</textarea>');
+				_tmp.find('.price').html('<textarea>'+_tmp.find('.price').html().replace(/<br>/g,'\n')+'</textarea>');
+				_tmp.find('.date').html('<textarea>'+_tmp.find('.date').html().replace(/<br>/g,'\n')+'</textarea>');
+				_tmp.find('.info').html('<textarea>'+_tmp.find('.info').html().replace(/<br>/g,'\n')+'</textarea>');
+				_tmp.find('.infoAll').html('<textarea>'+_tmp.find('.infoAll').html().replace(/<br>/g,'\n')+'</textarea>');
+				_tmp.find('.des').html('<textarea>'+_tmp.find('.des').html().replace(/<br>/g,'\n')+'</textarea>');
+				// _tmp.find('.newsbpic').prepend('<input type="file" name="file" id="imgInputMotify" accept="image/*" capture="camera"><label class="imgInputlabel" for="imgInputMotify"><span>點擊更換</span></label>');
+				// $("#imgInputMotify").change(function(){readURL(this,$(this),0);});
+				// _tmp.find('.newsspic').prepend('<input type="file" name="file" id="imgInputMotify2" accept="image/*" capture="camera"><label class="imgInputlabel" for="imgInputMotify2"><span>點擊更換</span></label>');
+				// $("#imgInputMotify2").change(function(){readURL(this,$(this),1);});
 			}else{			
-				_tmp.find('.newstitle').html(_tmp.find('.newstitle textarea').val().replace(/\n\r?/g, '<br>'));
-				_tmp.find('.newsbword').html(_tmp.find('.newsbword textarea').val().replace(/\n\r?/g, '<br>'));
-				_tmp.find('.newssword').html(_tmp.find('.newssword textarea').val().replace(/\n\r?/g, '<br>'));
-				_tmp.find('.newsbpic').html('<img src="' + webData.newPaperdata[_n].bpic + '">');
-				_tmp.find('.newsspic').html('<img src="' + webData.newPaperdata[_n].spic + '">');				
+				_tmp.find('.name').html(_tmp.find('.name textarea').val().replace(/\n\r?/g, '<br>'));
+				_tmp.find('.price').html(_tmp.find('.price textarea').val().replace(/\n\r?/g, '<br>'));
+				_tmp.find('.date').html(_tmp.find('.date textarea').val().replace(/\n\r?/g, '<br>'));
+				_tmp.find('.info').html(_tmp.find('.info textarea').val().replace(/\n\r?/g, '<br>'));
+				_tmp.find('.infoAll').html(_tmp.find('.infoAll textarea').val().replace(/\n\r?/g, '<br>'));
+				_tmp.find('.des').html(_tmp.find('.des textarea').val().replace(/\n\r?/g, '<br>'));
+				// _tmp.find('.newsbpic').html('<img src="' + webData.newPaperdata[_n].bpic + '">');
+				// _tmp.find('.newsspic').html('<img src="' + webData.newPaperdata[_n].spic + '">');				
 			}
-		}			
+		}
 	}
-	function motifyPaperEnd(_n,_num){		
+	function motifyPaperEnd(_n){		
 		showLoading(true);
-		//About
-		if(webData.wrp.hasClass('about')){
-			webData._n = _n;
-			webData._num = _num;
-			if($('.paper').eq(_num).find('li').eq(_n).find('.postphoto').find('img').hasClass('on')) uploadimgtoImgur(webData.uploadImg,motifyPaperFinal);
-			else{
-				webData.uploadImgTrue = $('.paper').eq(_num).find('li').eq(_n).find('.postphoto').find('img').attr('src');
-				motifyPaperFinal();
-			}
-		}
-		//News
-		else if(webData.wrp.hasClass('news')){
-			webData._n = _n;
-			webData.newspiccheck=0;
-			if($('.paper').find('li').eq(_n).find('.newsbpic').find('img').hasClass('on')) uploadimgtoImgur(webData.uploadImgbpic,motifyPaperFinal,0);
-			else{webData.newspiccheck+=1; webData.uploadImgbpic = $('.paper').find('li').eq(_n).find('.newsbpic').find('img').attr('src');}
-			if($('.paper').find('li').eq(_n).find('.newsspic').find('img').hasClass('on')) uploadimgtoImgur(webData.uploadImgspic,motifyPaperFinal,1);
-			else{webData.newspiccheck+=1; webData.uploadImgspic = $('.paper').find('li').eq(_n).find('.newsspic').find('img').attr('src');}
-			motifyPaperFinal();
-		}
-		//learn
-		else if(webData.wrp.hasClass('learn')){
-			webData._n = _n;
-			webData._num = _num;
-			if($('.paper').eq(_num).find('li').eq(_n).find('.postphoto').find('img').hasClass('on')) uploadimgtoImgur(webData.uploadImg,motifyPaperFinal);
-			else{
-				webData.uploadImgTrue = $('.paper').eq(_num).find('li').eq(_n).find('.postphoto').find('img').attr('src');
-				motifyPaperFinal();
-			}
-		}
-		//link
-		else if(webData.wrp.hasClass('link')){
-			webData._n = _n;			
-			if($('.paper li').eq(_n).find('.postphoto').find('img').hasClass('on')) uploadimgtoImgur(webData.uploadImg,motifyPaperFinal);
-			else{
-				webData.uploadImgTrue = $('.paper li').eq(_n).find('.postphoto').find('img').attr('src');
-				motifyPaperFinal();
-			}
-		}
-		//contact
-		else if(webData.wrp.hasClass('contact')){
-			webData._n = _n;	
-			webData._num = _num;			
-			motifyPaperFinal();			
-		}
-		//index
-		else if(webData.wrp.hasClass('index')){
-			webData._n = _n;	
-			webData._num = _num;
-			if(webData.learndata[webData._num].collectname == "index_banner"){
-				if($('.paper.banner li').eq(webData._n).find('.postphoto').find('img').hasClass('on')) uploadimgtoImgur(webData.uploadImgindexbannerpic,motifyPaperFinal);
-				else{
-					webData.uploadImgTrue = $('.paper.banner li').eq(webData._n).find('.postphoto').find('img').attr('src');
-					motifyPaperFinal();
+		//cars
+		if(webData.wrp.hasClass('cars')){
+			// webData._n = _n;
+			// webData.newspiccheck=0;
+			// if($('.paper').find('li').eq(_n).find('.newsbpic').find('img').hasClass('on')) uploadimgtoImgur(webData.uploadImgbpic,motifyPaperFinal,0);
+			// else{webData.newspiccheck+=1; webData.uploadImgbpic = $('.paper').find('li').eq(_n).find('.newsbpic').find('img').attr('src');}
+			// if($('.paper').find('li').eq(_n).find('.newsspic').find('img').hasClass('on')) uploadimgtoImgur(webData.uploadImgspic,motifyPaperFinal,1);
+			// else{webData.newspiccheck+=1; webData.uploadImgspic = $('.paper').find('li').eq(_n).find('.newsspic').find('img').attr('src');}
+			// motifyPaperFinal();
+			// if(webData.newspiccheck<2) return;
+			var _tmp = $('.list').find('li').eq(_n);
+			var _now = o.nowData[o.nowDataBrands];
+			_now.cars[_n].name=_tmp.find('.name').find('textarea').val().replace(/\n\r?/g, '<br>');
+			_now.cars[_n].price=_tmp.find('.price').find('textarea').val().replace(/\n\r?/g, '<br>');
+			_now.cars[_n].date=_tmp.find('.date').find('textarea').val().replace(/\n\r?/g, '<br>');
+			_now.cars[_n].info=_tmp.find('.info').find('textarea').val().replace(/\n\r?/g, '<br>');
+			_now.cars[_n].infoAll=_tmp.find('.infoAll').find('textarea').val().replace(/\n\r?/g, '<br>');
+			_now.cars[_n].des=_tmp.find('.des').find('textarea').val().replace(/\n\r?/g, '<br>');
+
+			// webData.newPaperdata[webData._n].title = $('.paper').find('li').eq(webData._n).find('.newstitle').find('textarea').val().replace(/\n\r?/g, '<br>');
+			// webData.newPaperdata[webData._n].spic = webData.uploadImgspic;
+			// webData.newPaperdata[webData._n].bpic = webData.uploadImgbpic;
+			// webData.newPaperdata[webData._n].date = new Date().getFullYear()+"/"+ (new Date().getMonth()*1+1) + "/"+new Date().getDate() + "星期"+changeDay(new Date().getDay());
+			// webData.newPaperdata[webData._n].sword = $('.paper').find('li').eq(webData._n).find('.newssword').find('textarea').val().replace(/\n\r?/g, '<br>');
+			// webData.newPaperdata[webData._n].bword = $('.paper').find('li').eq(webData._n).find('.newsbword').find('textarea').val().replace(/\n\r?/g, '<br>');
+			$.ajax({
+				url: 'https://api.mlab.com/api/1/databases/rhinomotor2017/collections/'+o.nowPage+'/'+_now._id.$oid+'?apiKey='+ webData.mlabApikey,
+				type: 'PUT',
+				contentType: 'application/json',
+				data:JSON.stringify(_now),
+				success: function(data) {
+					getDataCollection(o.nowPage,carsfunction,o.nowDataBrands);
+				},error: function(xhr, textStatus, errorThrown) {             
+					console.log("error:", xhr, textStatus, errorThrown);
 				}
-			}
-			else if(webData.learndata[webData._num].collectname == "index_photo"){
-				if($('.paper.photo li').eq(webData._n).find('.postphoto').find('img').hasClass('on')) uploadimgtoImgur(webData.uploadImgindexphotopic,motifyPaperFinal);
-				else{
-					webData.uploadImgTrue = $('.paper.photo li').eq(webData._n).find('.postphoto').find('img').attr('src');
-					motifyPaperFinal();
-				}
-			}
-			else if(webData.learndata[webData._num].collectname == "index_video"){				
-				motifyPaperFinal();
-			}
+			});
 		}
 	}	
+	function deletPaper(_n){
+		showLoading(true);
+		//cars
+		if(webData.wrp.hasClass('cars')){
+			var _now = o.nowData[o.nowDataBrands];
+			_now.cars.splice(_n,1);
+
+			$.ajax({
+				url: 'https://api.mlab.com/api/1/databases/rhinomotor2017/collections/'+o.nowPage+'/'+_now._id.$oid+'?apiKey='+ webData.mlabApikey,
+				type: 'PUT',
+				contentType: 'application/json',
+				data:JSON.stringify(_now),
+				success: function(data) {
+					getDataCollection(o.nowPage,carsfunction,o.nowDataBrands);
+				},error: function(xhr, textStatus, errorThrown) {             
+					console.log("error:", xhr, textStatus, errorThrown);
+				}
+			});
+		}
+	}	
+	/*不要動*/
+	
 	function motifyPaperFinal(){
 		if(webData.wrp.hasClass('about')){
 			if(webData._num==0){
@@ -442,7 +434,6 @@
 			}
 		}
 	}
-	
 	function indexreadURL(input,_o,_n){
 		if (input.files && input.files[0]) {
             var reader = new FileReader();            
@@ -663,14 +654,14 @@
 			}
         });        
 	}
-	function getDataCollection(_collectname,_callback){
+	function getDataCollection(_collectname,_callback,_nowdatabrands){
 		$.ajax({
 			url: 'https://api.mlab.com/api/1/databases/rhinomotor2017/collections/'+_collectname+'?s={"_id":-1}&apiKey='+ webData.mlabApikey,
 			type: 'GET',
 			contentType: 'application/json',
 			success: function(data) {
-				webData.newPaperdata = data;
-				_callback(data);
+				if(!_nowdatabrands) _nowdatabrands=0;
+				_callback(data,_nowdatabrands);
 			},error: function(xhr, textStatus, errorThrown) {
 				console.log("error:", xhr, textStatus, errorThrown);
 			}
