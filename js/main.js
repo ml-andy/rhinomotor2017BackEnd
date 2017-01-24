@@ -22,6 +22,9 @@
 	else showLoading(false);
 
 	//Addlistener
+	$('.logoutbtn').click(function(){
+		logout();
+	})
 	$('.menua').click(function(){menuaclick($(this));});
 	$('.searchbox .submit').click(function(){
 		showLoading(true);
