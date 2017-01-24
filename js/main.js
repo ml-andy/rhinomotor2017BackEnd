@@ -13,7 +13,10 @@
 	try{webData.nowpage = getUrlVars()['page'].replace('#access_token','');}
 	catch(err){webData.nowpage = 1;}
 
-	if(webData.wrp.hasClass('cars')) getDataCollection('carsPage',carsfunction);
+	if(webData.wrp.hasClass('cars')){
+		o.nowPage = 'carsPage';
+		getDataCollection(o.nowPage,carsfunction);
+	}
 	else showLoading(false);
 
 	//Addlistener	
@@ -21,7 +24,7 @@
 	// $("#indeximgInput2").change(function(){indexreadURL(this,$(this),1);});
 	// $('.maingobtn').click(function(){insertmainPaper($(this).parent().attr('nam'));});
 	// $('.gogamebtn').click(function(){insertgame();});
-	$('.menua').click(function(){menuaclick($(this));});
+	
 	// $("#imgInput").change(function(){readURL(this,$(this));});
 	// $("#newsimgInput").change(function(){newsreadURL(this,$(this),0);});
 	// $("#newsimgInput2").change(function(){newsreadURL(this,$(this),1);});
@@ -30,6 +33,19 @@
 	// o.menulispan.click(function(){
 	// 	menulispanclick($(this));
 	// });
+	$('.menua').click(function(){menuaclick($(this));});
+	$('.searchbox .submit').click(function(){
+		showLoading(true);
+		var _brands = $('.searchbox .addBrands').val();
+		if(_brands!='' || _brands!=undefined) addBrands(o.nowPage,_brands);
+		else{
+			alert(webData.creatUsererrortxt);
+			showLoading(false);
+		}
+	});
+	$('.deleteBrands').click(function(){
+		if(window.confirm("確定刪除?")) deletBrands(o.nowPage,o.nowDataBrands);
+	});
 
 	$(window).load(function(){
 		if(checkLogin()){
@@ -73,19 +89,6 @@
 		o.menulia.click(function(){
 			afterinsertCarsdata($(this).attr('data-brands'));
 		});
-		$('.searchbox .submit').click(function(){
-			showLoading(true);
-			var _brands = $('.searchbox .addBrands').val();
-			console.log($('.searchbox .addBrands').val());
-			if(_brands!='' || _brands!=undefined) addCarsBrands(_brands);
-			else{
-				alert(webData.creatUsererrortxt);
-				showLoading(false);
-			}
-		});
-
-		if(getUrlVars()['brands']) o.nowDataBrands = getUrlVars()['brands'];
-		else o.nowDataBrands = 0;
 
 		//content list
 		afterinsertCarsdata(o.nowDataBrands);
@@ -98,7 +101,7 @@
 		o.cot = $('.content .list ul');
 		o.cot.html('');
 		for(k in data[o.nowDataBrands].cars){
-			o.cot.append('<li><div class="mainData"><div class="slbox">'+k+'</div><div class="column name">'+data[o.nowDataBrands].cars[k].name+'</div><div class="column price">'+data[o.nowDataBrands].cars[k].price+'</div><div class="column date">'+data[o.nowDataBrands].cars[k].date+'</div><div class="column info">'+data[o.nowDataBrands].cars[k].info+'</div><div class="column infoAll">'+data[o.nowDataBrands].cars[k].infoAll+'</div><div class="column des">'+data[o.nowDataBrands].cars[k].des+'</div><div class="function"><a href="javascript:;">修改</a><a href="javascript:;">刪除</a></div></div><div class="secData"></div></li>');
+			o.cot.append('<li><div class="mainData"><div class="slbox">'+k+'</div><div class="column name">'+data[o.nowDataBrands].cars[k].name+'</div><div class="column price">'+data[o.nowDataBrands].cars[k].price+'</div><div class="column date">'+data[o.nowDataBrands].cars[k].date+'</div><div class="column info">'+data[o.nowDataBrands].cars[k].info+'</div><div class="column infoAll">'+data[o.nowDataBrands].cars[k].infoAll+'</div><div class="column des">'+data[o.nowDataBrands].cars[k].des+'</div><div class="function"><a class="motify" href="javascript:;"></a><a class="delete" href="javascript:;"></a></div></div><div class="secData"></div></li>');
 			//equipped
 			o.cot.find('li:last .secData').append('<div class="eqi"><div class="st">配備</div></div>');
 			for(x in data[o.nowDataBrands].cars[k].equipped){
@@ -115,7 +118,16 @@
 				o.cot.find('li:last .secData .carsImg').append('<div class="photoData"><div class="photo"><img src="'+data[o.nowDataBrands].cars[k].carsImg[x]+'"></div><div class="btn"><a href="javascript:;" class="modify">修改</a><a href="javascript:;" class="delet">刪除</a></div></div>');
 			}
 		}
-
+		$('.function .motify').click(function(){
+			if($(this).hasClass('on')){
+				$(this).removeClass('on');
+				// motifyPaperEnd($(this).parent().parent().index(),$(this).parent().parent().parent().attr('num'));
+			}
+			else{
+				$(this).addClass('on');
+				motifyPaper(true,o.nowDataBrands,$(this).parent().parent().find('.slbox').text());
+			}
+		});
 		// $('.paper .delbtn').click(function(){	
 		// 	if($(this).parent().find('.motify').hasClass('on')){
 		// 		$(this).parent().find('.motify').removeClass('on');
@@ -136,21 +148,19 @@
 		$('.menu ul li .box a').removeClass('on').eq(o.nowDataBrands).addClass('on');
 		showLoading(false);
 	}
-	function addCarsBrands(_brandsName){
+	function addBrands(_collectname,_brandsName){
 		var user_data = {
 			brands:_brandsName,
 			cars:[]
 		};
 		$.ajax({
-			url: 'https://api.mlab.com/api/1/databases/rhinomotor2017/collections/carsPage?apiKey='+ webData.mlabApikey,
+			url: 'https://api.mlab.com/api/1/databases/rhinomotor2017/collections/'+_collectname+'?apiKey='+ webData.mlabApikey,
 			type: 'POST',
 			contentType: 'application/json',
 			data:JSON.stringify(user_data),
 			success: function(data) {				
 				alert('新增成功');
 				window.location.reload();
-				// console.log(window.location.href+'&brands='+o.nowDataBrands);
-				// showloading(false);
 			},error: function(xhr, textStatus, errorThrown) {           
 				_o.removeClass('on');
 				showloading(false);
@@ -159,38 +169,39 @@
 		});
 
 	}
+	function deletBrands(_collectname,_n){
+		showLoading(true);
+		$.ajax({
+			url: 'https://api.mlab.com/api/1/databases/rhinomotor2017/collections/'+_collectname+'/'+o.nowData[_n]._id.$oid+'?apiKey='+ webData.mlabApikey,
+			type: "DELETE",
+			async: true,
+			timeout: 300000,
+			contentType: 'application/json',			
+			success: function(data) {
+				location.reload();
+			},error: function(xhr, textStatus, errorThrown) {             
+				console.log("error:", xhr, textStatus, errorThrown);
+			}
+		});
+	}
 	/*不要動*/
 	
 	function motifyPaper(_t,_n,_num){
 		if(_t){
 			if(webData.motifyPapering){
 				alert(webData.motifyerrortxt);
-				if(_num){
-					for(var i = 0; i<$('ul').length;i++){
-						if($('ul').eq(i).attr('num')==_num) $('ul').eq(i).find('li').eq(_n).find('.motify').removeClass('on');
-					}
-				}
-				else $('ul li').eq(_n).find('.motify').removeClass('on');
+				// if(_num){
+				// 	for(var i = 0; i<$('ul').length;i++){
+				// 		if($('ul').eq(i).attr('num')==_num) $('ul').eq(i).find('li').eq(_n).find('.motify').removeClass('on');
+				// 	}
+				// }
+				// else $('ul li').eq(_n).find('.motify').removeClass('on');
 				return;
 			}
 			else webData.motifyPapering=true;
 		}else webData.motifyPapering=false;
-		//About
-		if(webData.wrp.hasClass('about')){
-			var _tmp = $('.paper').eq(_num).find('li').eq(_n);
-			if(_t){
-				_tmp.find('.posttitle').html('<textarea>'+_tmp.find('.posttitle').html().replace(/<br>/g,'\n')+'</textarea>');
-				_tmp.find('.postdes').html('<textarea>'+_tmp.find('.postdes').html().replace(/<br>/g,'\n')+'</textarea>');
-				_tmp.find('.postphoto').prepend('<input type="file" name="file" id="imgInputMotify" accept="image/*" capture="camera"><label class="imgInputlabel" for="imgInputMotify"><span>點擊更換</span></label>');
-				$("#imgInputMotify").change(function(){readURL(this,$(this));});
-			}else{			
-				_tmp.find('.posttitle').html(_tmp.find('.posttitle textarea').val().replace(/\n\r?/g, '<br>'));
-				_tmp.find('.postdes').html(_tmp.find('.postdes textarea').val().replace(/\n\r?/g, '<br>'));			
-				_tmp.find('.postphoto').html('<img src="' + webData.newPaperdata[0].list[_n].pic + '">');
-			}
-		}
 		//News
-		else if(webData.wrp.hasClass('news')){
+		if(webData.wrp.hasClass('news')){
 			var _tmp = $('.paper').find('li').eq(_n);
 			if(_t){				
 				_tmp.find('.newstitle').html('<textarea>'+_tmp.find('.newstitle').html().replace(/<br>/g,'\n')+'</textarea>');
@@ -207,67 +218,7 @@
 				_tmp.find('.newsbpic').html('<img src="' + webData.newPaperdata[_n].bpic + '">');
 				_tmp.find('.newsspic').html('<img src="' + webData.newPaperdata[_n].spic + '">');				
 			}
-		}
-		//learn
-		else if(webData.wrp.hasClass('learn')){
-			var _tmp = $('.paper').eq(_num).find('li').eq(_n);
-			if(_t){
-				if(_num==0){
-					_tmp.find('.posttitle').html('<textarea>'+_tmp.find('.posttitle').html().replace(/<br>/g,'\n')+'</textarea>');
-					_tmp.find('.postdes').html('<textarea>'+_tmp.find('.postdes').html().replace(/<br>/g,'\n')+'</textarea>');					
-				}
-				_tmp.find('.postphoto').prepend('<input type="file" name="file" id="imgInputMotify" accept="image/*" capture="camera"><label class="imgInputlabel" for="imgInputMotify"><span>點擊更換</span></label>');
-				$("#imgInputMotify").change(function(){readURL(this,$(this));});				
-			}else{	
-				_tmp.find('.postphoto').html('<img src="' + webData.learndata[1][_n].pic + '">');
-			}
-		}
-		//link
-		else if(webData.wrp.hasClass('link')){
-			var _tmp = $('.paper li').eq(_n);			
-			if(_t){				
-				_tmp.find('.posttitle').html('<textarea>'+_tmp.find('.posttitle a').html()+'</textarea>');								
-				_tmp.find('.postphoto').prepend('<input type="file" name="file" id="imgInputMotify" accept="image/*" capture="camera"><label class="imgInputlabel" for="imgInputMotify"><span>點擊更換</span></label>');
-				$("#imgInputMotify").change(function(){readURL(this,$(this));});				
-			}else{	
-				_tmp.find('.posttitle').html('<a href="'+webData.newPaperdata[_n].link+'">'+webData.newPaperdata[_n].link+'</a>');
-				_tmp.find('.postphoto').html('<img src="' + webData.newPaperdata[_n].pic + '">');
-			}
-		}	
-		//contact
-		else if(webData.wrp.hasClass('contact')){
-			if(_t) $('.paper_addr li').eq(_n).find('.posttitle').html('<textarea>'+ $('.paper_addr li').eq(_n).find('.posttitle').html().replace(/<br>/g,'\n')+'</textarea>');
-			else $('.paper_addr li').eq(_n).find('.posttitle').html(webData.learndata[_num][_n].addr);
-		}	
-		//index
-		else if(webData.wrp.hasClass('index')){
-			if(webData.learndata[_num].collectname=="index_banner"){
-				var _tmp = $('.paper.banner li').eq(_n);
-				if(_t){
-					_tmp.find('.postphoto').prepend('<input type="file" name="file" id="imgInputMotify" accept="image/*" capture="camera"><label class="imgInputlabel" for="imgInputMotify"><span>點擊更換</span></label>');
-					$("#imgInputMotify").change(function(){readURL(this,$(this),0);});				
-				}else{						
-					_tmp.find('.postphoto').html('<img src="' + webData.learndata[_num][_n].pic + '">');
-				}
-			}
-			else if(webData.learndata[_num].collectname=="index_photo"){
-				var _tmp = $('.paper.photo li').eq(_n);
-				if(_t){
-					_tmp.find('.postphoto').prepend('<input type="file" name="file" id="imgInputMotify2" accept="image/*" capture="camera"><label class="imgInputlabel" for="imgInputMotify2"><span>點擊更換</span></label>');
-					$("#imgInputMotify2").change(function(){readURL(this,$(this),1);});				
-				}else{	
-					_tmp.find('.postphoto').html('<img src="' + webData.learndata[_num][_n].pic + '">');
-				}
-			}
-			else if(webData.learndata[_num].collectname=="index_video"){
-				var _tmp = $('.paper.video li').eq(_n);
-				if(_t){
-					_tmp.find('.posttitle').html('<textarea>'+_tmp.find('.posttitle a').html()+'</textarea>');
-				}else{	
-					_tmp.find('.posttitle').html('<a href="'+webData.learndata[_num][_n].video+'">'+webData.learndata[_num][_n].video+'</a>');					
-				}
-			}			
-		}				
+		}			
 	}
 	function motifyPaperEnd(_n,_num){		
 		showLoading(true);
@@ -491,103 +442,7 @@
 			}
 		}
 	}
-	function deletPaper(_n,_num){
-		showLoading(true);
-		if(webData.wrp.hasClass('about')){
-			webData.newPaperdata[0].list.splice(_n,1);
-			$.ajax({
-				url: 'https://api.mlab.com/api/1/databases/chinesechess2016/collections/aboutus_page'+webData.nowpage+'?apiKey='+ webData.mlabApikey,
-				type: 'PUT',
-				contentType: 'application/json',
-				data:JSON.stringify(webData.newPaperdata),
-				success: function(data) {
-					getDataCollection('aboutus_page',aboutfunction);
-				},error: function(xhr, textStatus, errorThrown) {             
-					console.log("error:", xhr, textStatus, errorThrown);
-				}
-			});
-		}		
-		else if(webData.wrp.hasClass('news')){
-			$.ajax({
-				url: 'https://api.mlab.com/api/1/databases/chinesechess2016/collections/news_page'+webData.nowpage+'/'+webData.newPaperdata[_n]._id.$oid+'?apiKey='+ webData.mlabApikey,
-				type: "DELETE",
-				async: true,
-				timeout: 300000,
-				contentType: 'application/json',			
-				success: function(data) {
-					getDataCollection('news_page',newsfunction);
-				},error: function(xhr, textStatus, errorThrown) {             
-					console.log("error:", xhr, textStatus, errorThrown);
-				}
-			});
-		}
-		else if(webData.wrp.hasClass('learn')){
-			$.ajax({
-				url: 'https://api.mlab.com/api/1/databases/chinesechess2016/collections/learning_photo_page'+webData.nowpage+'/'+webData.learndata[_num][_n]._id.$oid+'?apiKey='+ webData.mlabApikey,
-				type: "DELETE",
-				async: true,
-				timeout: 300000,
-				contentType: 'application/json',			
-				success: function(data) {
-					location.reload();
-				},error: function(xhr, textStatus, errorThrown) {             
-					console.log("error:", xhr, textStatus, errorThrown);
-				}
-			});
-		}
-		else if(webData.wrp.hasClass('link')){
-			$.ajax({
-				url: 'https://api.mlab.com/api/1/databases/chinesechess2016/collections/otherlink'+webData.nowpage+'/'+webData.newPaperdata[_n]._id.$oid+'?apiKey='+ webData.mlabApikey,
-				type: "DELETE",
-				async: true,
-				timeout: 300000,
-				contentType: 'application/json',			
-				success: function(data) {
-					location.reload();
-				},error: function(xhr, textStatus, errorThrown) {             
-					console.log("error:", xhr, textStatus, errorThrown);
-				}
-			});
-		}
-		else if(webData.wrp.hasClass('contact')){
-			$.ajax({
-				url: 'https://api.mlab.com/api/1/databases/chinesechess2016/collections/emailbox'+webData.nowpage+'/'+webData.learndata[_num][_n]._id.$oid+'?apiKey='+ webData.mlabApikey,
-				type: "DELETE",
-				async: true,
-				timeout: 300000,
-				contentType: 'application/json',			
-				success: function(data) {
-					location.reload();
-				},error: function(xhr, textStatus, errorThrown) {             
-					console.log("error:", xhr, textStatus, errorThrown);
-				}
-			});
-		}
-		else if(webData.wrp.hasClass('index')){
-			var _url;
-			if(webData.learndata[_num].collectname=="index_banner"){
-				_url = 'https://api.mlab.com/api/1/databases/chinesechess2016/collections/index_banner'+webData.nowpage+'/'+webData.learndata[_num][_n]._id.$oid+'?apiKey='+ webData.mlabApikey;
-			}
-			else if(webData.learndata[_num].collectname=="index_photo"){
-				_url = 'https://api.mlab.com/api/1/databases/chinesechess2016/collections/index_photo'+webData.nowpage+'/'+webData.learndata[_num][_n]._id.$oid+'?apiKey='+ webData.mlabApikey;
-			}
-			else if(webData.learndata[_num].collectname=="index_video"){
-				_url = 'https://api.mlab.com/api/1/databases/chinesechess2016/collections/index_video'+webData.nowpage+'/'+webData.learndata[_num][_n]._id.$oid+'?apiKey='+ webData.mlabApikey;
-			}			
-			$.ajax({
-				url: _url,
-				type: "DELETE",
-				async: true,
-				timeout: 300000,
-				contentType: 'application/json',			
-				success: function(data) {
-					location.reload();
-				},error: function(xhr, textStatus, errorThrown) {             
-					console.log("error:", xhr, textStatus, errorThrown);
-				}
-			});
-		}
-	}
+	
 	function indexreadURL(input,_o,_n){
 		if (input.files && input.files[0]) {
             var reader = new FileReader();            
