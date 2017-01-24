@@ -22,7 +22,7 @@
 		background: url(../images/logo.png) no-repeat;
 		background-position: center 45px;
 		//test
-		opacity: 0;
+		// opacity: 0;
 	}
 	.t{
 		@include alt(100%,18px,0,145px);
@@ -32,7 +32,7 @@
 		text-align: center;
 		z-index: 9;
 		//test
-		opacity: 0;
+		// opacity: 0;
 	}
 	.logoutbtn{
 		@include alt(100%,18px,0,180px);
