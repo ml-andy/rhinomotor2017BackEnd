@@ -10,7 +10,8 @@
 		defaultCarsImg:'https://ml-andy.github.io/RhinoMotor/andy/images/cars_content_pic1.jpg',
 		defaultPressImg:'https://ml-andy.github.io/RhinoMotor/andy/images/press_b_slide1.jpg',
 		UploadImg:'',
-		indexUploadImg:''
+		indexUploadImg:'',
+		uploadMainImg:''
 	}
 
 	//init
@@ -54,6 +55,7 @@
 	
 
 	$(window).load(function(){
+		console.log('v 4.53');
 		if(checkLogin()){
 			try{
 				webData.imgurToken = window.location.href.split('#')[1].split('&')[0].replace('access_token=','');
@@ -421,7 +423,6 @@
 				_tmp.find('.href').html('<textarea>'+_tmp.find('.href').html().replace(/<br>/g,'\n')+'</textarea>');
 				_tmp.find('.photo').prepend('<input type="file" name="file" id="imgInputMotify" accept="image/*" capture="camera"><label class="imgInputlabel" for="imgInputMotify"><span>點擊更換</span></label>');
 				$("#imgInputMotify").change(function(){readURLMain(this,$(this));});
-				// o.uploadMainImg
 			}else{
 				_tmp.find('.bTitle').html(_tmp.find('.bTitle textarea').val().replace(/\n\r?/g, '<br>'));
 				_tmp.find('.sTitle').html(_tmp.find('.sTitle textarea').val().replace(/\n\r?/g, '<br>'));
@@ -475,23 +476,37 @@
 		//main
 		else if(webData.wrp.hasClass('main')){
 			o.nowDataMainNum = _n;
-			uploadimgtoImgur(o.uploadMainImg,motifyPaperEndIndex);
+			o.nowData[o.nowDataMainNum].bTitle=_tmp.find('.bTitle').find('textarea').val().replace(/\n\r?/g, '<br>');
+			o.nowData[o.nowDataMainNum].sTitle=_tmp.find('.sTitle').find('textarea').val().replace(/\n\r?/g, '<br>');
+			o.nowData[o.nowDataMainNum].href=_tmp.find('.href').find('textarea').val().replace(/\n\r?/g, '<br>');
+
+			if(o.uploadMainImg==''){
+				$.ajax({
+					url: 'https://api.mlab.com/api/1/databases/rhinomotor2017/collections/'+o.nowPage+'/'+ o.nowData[o.nowDataMainNum]._id.$oid+'?apiKey='+ webData.mlabApikey,
+					type: 'PUT',
+					contentType: 'application/json',
+					data:JSON.stringify(_now),
+					success: function(data) {
+						o.uploadMainImg = '';
+						o.uploadImgTrue = '';
+						getDataCollection(o.nowPage,mainfunction);
+					},error: function(xhr, textStatus, errorThrown) {             
+						console.log("error:", xhr, textStatus, errorThrown);
+					}
+				});
+			}else uploadimgtoImgur(o.uploadMainImg,motifyPaperEndIndex);
 		}
 	}	
 	function motifyPaperEndIndex(){
-		var _tmp = $('.list').find('li').eq(o.nowDataMainNum);
-		var _now = o.nowData[o.nowDataMainNum];
-		_now.bTitle=_tmp.find('.bTitle').find('textarea').val().replace(/\n\r?/g, '<br>');
-		_now.sTitle=_tmp.find('.sTitle').find('textarea').val().replace(/\n\r?/g, '<br>');
-		_now.href=_tmp.find('.href').find('textarea').val().replace(/\n\r?/g, '<br>');
-		_now.photo=o.uploadImgTrue;
-		
+		o.nowData[o.nowDataMainNum].photo=o.uploadImgTrue;
 		$.ajax({
-			url: 'https://api.mlab.com/api/1/databases/rhinomotor2017/collections/'+o.nowPage+'/'+_now._id.$oid+'?apiKey='+ webData.mlabApikey,
+			url: 'https://api.mlab.com/api/1/databases/rhinomotor2017/collections/'+o.nowPage+'/'+ o.nowData[o.nowDataMainNum]._id.$oid+'?apiKey='+ webData.mlabApikey,
 			type: 'PUT',
 			contentType: 'application/json',
 			data:JSON.stringify(_now),
 			success: function(data) {
+				o.uploadMainImg = '';
+				o.uploadImgTrue = '';
 				getDataCollection(o.nowPage,mainfunction);
 			},error: function(xhr, textStatus, errorThrown) {             
 				console.log("error:", xhr, textStatus, errorThrown);
