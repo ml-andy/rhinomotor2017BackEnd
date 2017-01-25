@@ -278,6 +278,19 @@
 			padding: 10px;
 			margin-top: 20px;
 			background-color: #1e1e1e;
+			&.press{
+				.lt .box input{
+					@include alt(24%,30px,78px);
+					&:nth-child(3n){
+						top:35px;
+					}
+				}
+				.lt .box textarea{
+					width:70%;
+					height:65px;
+					margin-left:28%;
+				}	
+			}
 			.lt{
 				@include r;
 				box-sizing:border-box;
@@ -369,13 +382,19 @@
 			&.column-3{
 				.t{
 					.column{
-						@include r(33.3%,100%);
+						@include r(20%,100%);
+						&:nth-child(4n){
+							width:60%;
+						}
 					}
 				}
 				ul{
 					li{
 						.column{
-							@include r(33.3%,100%);
+							@include r(20%,100%);
+							&:nth-child(4n){
+								width:60%;
+							}
 						}
 					}
 				}
@@ -537,7 +556,7 @@
 								}
 							}
 						}
-						.carsImg{
+						.carsImg,.pressImg{
 							@include r(50%);
 							.addImgBox{
 								@include r(100%,35px);
@@ -601,6 +620,9 @@
 									}
 								}
 							}
+						}
+						.pressImg{
+							width:85%;
 						}
 					}
 					textarea{

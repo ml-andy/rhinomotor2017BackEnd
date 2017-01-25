@@ -8,6 +8,7 @@
 	var o = {
 		wrp: $('.wrapper'),
 		defaultCarsImg:'https://ml-andy.github.io/RhinoMotor/andy/images/cars_content_pic1.jpg',
+		defaultPressImg:'https://ml-andy.github.io/RhinoMotor/andy/images/press_b_slide1.jpg',
 		UploadImg:''
 	}
 
@@ -18,6 +19,10 @@
 	if(webData.wrp.hasClass('cars')){
 		o.nowPage = 'carsPage';
 		getDataCollection(o.nowPage,carsfunction);
+	}
+	else if(webData.wrp.hasClass('press')){
+		o.nowPage = 'pressPage';
+		getDataCollection(o.nowPage,pressfunction);
 	}
 	else showLoading(false);
 
@@ -58,6 +63,97 @@
 	});
 
 	//Event
+	function pressfunction(data,nowDataBrands){
+		o.nowData = data;
+		webData.motifyPapering = false;
+		//menulist
+		$('.menua.on').replaceWith('<li><span>最新消息</span><div class="box"></div></li>');
+		$('.menu ul li .box').html('');
+		for(i in data){
+			$('.menu ul li .box').append('<a class="menuain" href="javascript:;" data-brands="'+i+'">'+data[i].brands+'</a>');
+		}
+		o.menulispan = $(".wrapper .menu li").find('span');
+		o.menulispan.click(function(){
+			menulispanclick($(this));
+		});
+		if(!o.menulispan.parent().hasClass('on')) o.menulispan.trigger('click');
+		o.menulia = $(".wrapper .menu li").find('a');
+		o.menulia.click(function(){
+			insertPressdata($(this).attr('data-brands'));
+		});
+
+		//content list
+		insertPressdata(nowDataBrands);
+	}
+	function insertPressdata(_n){
+		var data = o.nowData;
+		o.nowDataBrands = _n;
+		$('.title').html(data[_n].brands);
+
+		o.cot = $('.content .list ul');
+		o.cot.html('');
+		for(k in data[o.nowDataBrands].press){
+			o.cot.append('<li><div class="mainData"><div class="slbox">'+k+'</div><div class="column date">'+data[o.nowDataBrands].press[k].date+'</div><div class="column mainTitle">'+data[o.nowDataBrands].press[k].title+'</div><div class="column mainContent">'+data[o.nowDataBrands].press[k].content+'</div><div class="function"><a class="motify" href="javascript:;"></a><a class="delete" href="javascript:;"></a></div></div><div class="secData"></div></li>');
+
+			//recommend
+			var _txt ='否';
+			if(data[o.nowDataBrands].press[k].recommend) _txt = '是';
+			o.cot.find('li:last .secData').append('<div class="recommend" data-recd="'+data[o.nowDataBrands].press[k].recommend+'"><div class="st">推薦</div><span>'+_txt+'</span><div class="btn change">更改</div></div>');
+
+			//photo
+			o.cot.find('li:last .secData').append('<div class="pressImg"><div class="st">圖片</div><div class="addImgBox"><input type="file" name="file" class="pressImgInput" accept="image/*" capture="camera"><div class="submit">確定新增</div></div><div class="photoDataBox"></div></div>');
+			for(x in data[o.nowDataBrands].press[k].photo){
+				o.cot.find('li:last .secData .pressImg .photoDataBox').append('<div class="photoData"><div class="photo"><img src="'+data[o.nowDataBrands].press[k].photo[x]+'"></div><div class="btn"><a href="javascript:;" class="delet"></a></div></div>');
+			}
+		}
+		
+		$('.function .motify').click(function(){			
+			if($(this).hasClass('on')){
+				$(this).removeClass('on');				
+				motifyPaperEnd($(this).parent().parent().find('.slbox').text());
+			}
+			else{
+				$(this).addClass('on');
+				motifyPaper(true,$(this).parent().parent().find('.slbox').text());
+			}
+		});
+		$('.function .delete').click(function(){			
+			if($(this).parent().find('.motify').hasClass('on')){
+				$(this).parent().find('.motify').removeClass('on');
+				motifyPaper(false,$(this).parent().parent().find('.slbox').text());
+			}
+			else{
+				if(window.confirm("確定刪除嗎?")) deletPaper($(this).parent().parent().find('.slbox').text());
+			}
+		});
+
+		//recommend
+		$('.recommend .change').click(function(){
+			showLoading(true);
+			changeRecommend($(this).parent().parent().parent().find('.slbox').text())
+		});
+
+		//photo
+		$(".pressImgInput").change(function(){ReadURL(this);});
+		$('.addImgBox .submit').click(function(){
+			if(o.UploadImg==''){
+				alert('請先選擇檔案');
+				return;
+			}
+			showLoading(true);
+			o.nowUploadImgNum = $(this).parent().parent().parent().parent().find('.slbox').text();
+			uploadimgtoImgur(o.UploadImg,insertImg);
+		});
+		// $('.photoDataBox .delet').click(function(){
+		// 	if(window.confirm('確定刪除?')){
+		// 		showLoading(true);
+		// 		deleteImg($(this).parent().parent().index(),$(this).parent().parent().parent().parent().parent().parent().find('.slbox').text())
+		// 	}
+		// });
+
+		$('.menu ul li .box a').removeClass('on').eq(o.nowDataBrands).addClass('on');
+		showLoading(false);
+	}
 	function carsfunction(data,nowDataBrands){
 		o.nowData = data;
 		webData.motifyPapering = false;
@@ -83,7 +179,7 @@
 	function insertCarsdata(_n){
 		var data = o.nowData;
 		o.nowDataBrands = _n;
-		$('.title').html(data[_n].brands+' 產品介紹');
+		$('.title').html(data[_n].brands);
 
 		o.cot = $('.content .list ul');
 		o.cot.html('');
@@ -212,16 +308,11 @@
 			if(webData.motifyPapering){
 				alert(webData.motifyerrortxt);
 				_tmp.find('.motify').removeClass('on');
-				// if(_num){
-				// 	for(var i = 0; i<$('ul').length;i++){
-				// 		if($('ul').eq(i).attr('num')==_num) $('ul').eq(i).find('li').eq(_n).find('.motify').removeClass('on');
-				// 	}
-				// }
-				// else $('ul li').eq(_n).find('.motify').removeClass('on');
 				return;
 			}
 			else webData.motifyPapering=true;
 		}else webData.motifyPapering=false;
+
 		//cars
 		if(webData.wrp.hasClass('cars')){
 			var _tmp = $('.list').find('li').eq(_n);
@@ -232,10 +323,6 @@
 				_tmp.find('.info').html('<textarea>'+_tmp.find('.info').html().replace(/<br>/g,'\n')+'</textarea>');
 				_tmp.find('.infoAll').html('<textarea>'+_tmp.find('.infoAll').html().replace(/<br>/g,'\n')+'</textarea>');
 				_tmp.find('.des').html('<textarea>'+_tmp.find('.des').html().replace(/<br>/g,'\n')+'</textarea>');
-				// _tmp.find('.newsbpic').prepend('<input type="file" name="file" id="imgInputMotify" accept="image/*" capture="camera"><label class="imgInputlabel" for="imgInputMotify"><span>點擊更換</span></label>');
-				// $("#imgInputMotify").change(function(){readURL(this,$(this),0);});
-				// _tmp.find('.newsspic').prepend('<input type="file" name="file" id="imgInputMotify2" accept="image/*" capture="camera"><label class="imgInputlabel" for="imgInputMotify2"><span>點擊更換</span></label>');
-				// $("#imgInputMotify2").change(function(){readURL(this,$(this),1);});
 			}else{			
 				_tmp.find('.name').html(_tmp.find('.name textarea').val().replace(/\n\r?/g, '<br>'));
 				_tmp.find('.price').html(_tmp.find('.price textarea').val().replace(/\n\r?/g, '<br>'));
@@ -243,38 +330,34 @@
 				_tmp.find('.info').html(_tmp.find('.info textarea').val().replace(/\n\r?/g, '<br>'));
 				_tmp.find('.infoAll').html(_tmp.find('.infoAll textarea').val().replace(/\n\r?/g, '<br>'));
 				_tmp.find('.des').html(_tmp.find('.des textarea').val().replace(/\n\r?/g, '<br>'));
-				// _tmp.find('.newsbpic').html('<img src="' + webData.newPaperdata[_n].bpic + '">');
-				// _tmp.find('.newsspic').html('<img src="' + webData.newPaperdata[_n].spic + '">');				
+			}
+		}
+		//press
+		else if(webData.wrp.hasClass('press')){
+			var _tmp = $('.list').find('li').eq(_n);
+			if(_t){
+				_tmp.find('.date').html('<textarea>'+_tmp.find('.date').html().replace(/<br>/g,'\n')+'</textarea>');
+				_tmp.find('.mainTitle').html('<textarea>'+_tmp.find('.mainTitle').html().replace(/<br>/g,'\n')+'</textarea>');
+				_tmp.find('.mainContent').html('<textarea>'+_tmp.find('.mainContent').html().replace(/<br>/g,'\n')+'</textarea>');
+			}else{
+				_tmp.find('.date').html(_tmp.find('.date textarea').val().replace(/\n\r?/g, '<br>'));
+				_tmp.find('.mainTitle').html(_tmp.find('.mainTitle textarea').val().replace(/\n\r?/g, '<br>'));
+				_tmp.find('.mainContent').html(_tmp.find('.mainContent textarea').val().replace(/\n\r?/g, '<br>'));
 			}
 		}
 	}
 	function motifyPaperEnd(_n){		
 		showLoading(true);
+		var _tmp = $('.list').find('li').eq(_n);
+		var _now = o.nowData[o.nowDataBrands];
 		//cars
 		if(webData.wrp.hasClass('cars')){
-			// webData._n = _n;
-			// webData.newspiccheck=0;
-			// if($('.paper').find('li').eq(_n).find('.newsbpic').find('img').hasClass('on')) uploadimgtoImgur(webData.uploadImgbpic,motifyPaperFinal,0);
-			// else{webData.newspiccheck+=1; webData.uploadImgbpic = $('.paper').find('li').eq(_n).find('.newsbpic').find('img').attr('src');}
-			// if($('.paper').find('li').eq(_n).find('.newsspic').find('img').hasClass('on')) uploadimgtoImgur(webData.uploadImgspic,motifyPaperFinal,1);
-			// else{webData.newspiccheck+=1; webData.uploadImgspic = $('.paper').find('li').eq(_n).find('.newsspic').find('img').attr('src');}
-			// motifyPaperFinal();
-			// if(webData.newspiccheck<2) return;
-			var _tmp = $('.list').find('li').eq(_n);
-			var _now = o.nowData[o.nowDataBrands];
 			_now.cars[_n].name=_tmp.find('.name').find('textarea').val().replace(/\n\r?/g, '<br>');
 			_now.cars[_n].price=_tmp.find('.price').find('textarea').val().replace(/\n\r?/g, '<br>');
 			_now.cars[_n].date=_tmp.find('.date').find('textarea').val().replace(/\n\r?/g, '<br>');
 			_now.cars[_n].info=_tmp.find('.info').find('textarea').val().replace(/\n\r?/g, '<br>');
 			_now.cars[_n].infoAll=_tmp.find('.infoAll').find('textarea').val().replace(/\n\r?/g, '<br>');
 			_now.cars[_n].des=_tmp.find('.des').find('textarea').val().replace(/\n\r?/g, '<br>');
-
-			// webData.newPaperdata[webData._n].title = $('.paper').find('li').eq(webData._n).find('.newstitle').find('textarea').val().replace(/\n\r?/g, '<br>');
-			// webData.newPaperdata[webData._n].spic = webData.uploadImgspic;
-			// webData.newPaperdata[webData._n].bpic = webData.uploadImgbpic;
-			// webData.newPaperdata[webData._n].date = new Date().getFullYear()+"/"+ (new Date().getMonth()*1+1) + "/"+new Date().getDate() + "星期"+changeDay(new Date().getDay());
-			// webData.newPaperdata[webData._n].sword = $('.paper').find('li').eq(webData._n).find('.newssword').find('textarea').val().replace(/\n\r?/g, '<br>');
-			// webData.newPaperdata[webData._n].bword = $('.paper').find('li').eq(webData._n).find('.newsbword').find('textarea').val().replace(/\n\r?/g, '<br>');
 			$.ajax({
 				url: 'https://api.mlab.com/api/1/databases/rhinomotor2017/collections/'+o.nowPage+'/'+_now._id.$oid+'?apiKey='+ webData.mlabApikey,
 				type: 'PUT',
@@ -287,10 +370,27 @@
 				}
 			});
 		}
+		//press
+		else if(webData.wrp.hasClass('press')){
+			_now.press[_n].date=_tmp.find('.date').find('textarea').val().replace(/\n\r?/g, '<br>');
+			_now.press[_n].title=_tmp.find('.mainTitle').find('textarea').val().replace(/\n\r?/g, '<br>');
+			_now.press[_n].content=_tmp.find('.mainContent').find('textarea').val().replace(/\n\r?/g, '<br>');
+			
+			$.ajax({
+				url: 'https://api.mlab.com/api/1/databases/rhinomotor2017/collections/'+o.nowPage+'/'+_now._id.$oid+'?apiKey='+ webData.mlabApikey,
+				type: 'PUT',
+				contentType: 'application/json',
+				data:JSON.stringify(_now),
+				success: function(data) {
+					getDataCollection(o.nowPage,pressfunction,o.nowDataBrands);
+				},error: function(xhr, textStatus, errorThrown) {             
+					console.log("error:", xhr, textStatus, errorThrown);
+				}
+			});
+		}
 	}	
 	function addPaper(){
 		var _o = $('.addbox .box');
-
 		//cars
 		if(webData.wrp.hasClass('cars')){
 			var _add = {
@@ -327,6 +427,38 @@
 				}
 			});
 		}
+		//press
+		else if(webData.wrp.hasClass('press')){
+			var _add = {
+				date:_o.find('.addDate').val().replace(/\n\r?/g, '<br>'),
+				title:_o.find('.addTitle').val().replace(/\n\r?/g, '<br>'),
+				content:_o.find('.addContent').val().replace(/\n\r?/g, '<br>')
+			};
+			if(!checkNoEmpty(_add)){
+				alert(webData.creatUsererrortxt);
+				showLoading(false);
+				return;
+			}
+			_add.photo =[o.defaultPressImg];
+			_add.recommend = false;
+			showLoading(true);
+			clearForm('.addbox');
+			var _now = o.nowData[o.nowDataBrands];
+			_now.press.push(_add);
+
+			$.ajax({
+				url: 'https://api.mlab.com/api/1/databases/rhinomotor2017/collections/'+o.nowPage+'/'+_now._id.$oid+'?apiKey='+ webData.mlabApikey,
+				type: 'PUT',
+				contentType: 'application/json',
+				data:JSON.stringify(_now),
+				success: function(data) {
+					alert('新增成功');
+					getDataCollection(o.nowPage,pressfunction,o.nowDataBrands);
+				},error: function(xhr, textStatus, errorThrown) {             
+					console.log("error:", xhr, textStatus, errorThrown);
+				}
+			});
+		}
 	}
 	function deletPaper(_n){
 		showLoading(true);
@@ -342,6 +474,22 @@
 				data:JSON.stringify(_now),
 				success: function(data) {
 					getDataCollection(o.nowPage,carsfunction,o.nowDataBrands);
+				},error: function(xhr, textStatus, errorThrown) {             
+					console.log("error:", xhr, textStatus, errorThrown);
+				}
+			});
+		}
+		else if(webData.wrp.hasClass('press')){
+			var _now = o.nowData[o.nowDataBrands];
+			_now.press.splice(_n,1);
+
+			$.ajax({
+				url: 'https://api.mlab.com/api/1/databases/rhinomotor2017/collections/'+o.nowPage+'/'+_now._id.$oid+'?apiKey='+ webData.mlabApikey,
+				type: 'PUT',
+				contentType: 'application/json',
+				data:JSON.stringify(_now),
+				success: function(data) {
+					getDataCollection(o.nowPage,pressfunction,o.nowDataBrands);
 				},error: function(xhr, textStatus, errorThrown) {             
 					console.log("error:", xhr, textStatus, errorThrown);
 				}
@@ -389,21 +537,39 @@
 		if(o.nowPage == 'carsPage'){
 			var _now = o.nowData[o.nowDataBrands];
 			_now.cars[o.nowUploadImgNum].carsImg.push(o.uploadImgTrue);
+			$.ajax({
+				url: 'https://api.mlab.com/api/1/databases/rhinomotor2017/collections/'+o.nowPage+'/'+_now._id.$oid+'?apiKey='+ webData.mlabApikey,
+				type: 'PUT',
+				contentType: 'application/json',
+				data:JSON.stringify(_now),
+				success: function(data) {
+					o.uploadImgTrue = o.UploadImg ='';
+					alert('新增成功');
+					getDataCollection(o.nowPage,carsfunction,o.nowDataBrands);
+				},error: function(xhr, textStatus, errorThrown) {             
+					console.log("error:", xhr, textStatus, errorThrown);
+				}
+			});
+		}
+		if(o.nowPage == 'pressPage'){
+			var _now = o.nowData[o.nowDataBrands];
+			_now.press[o.nowUploadImgNum].photo.push(o.uploadImgTrue);
+			$.ajax({
+				url: 'https://api.mlab.com/api/1/databases/rhinomotor2017/collections/'+o.nowPage+'/'+_now._id.$oid+'?apiKey='+ webData.mlabApikey,
+				type: 'PUT',
+				contentType: 'application/json',
+				data:JSON.stringify(_now),
+				success: function(data) {
+					o.uploadImgTrue = o.UploadImg ='';
+					alert('新增成功');
+					getDataCollection(o.nowPage,pressfunction,o.nowDataBrands);
+				},error: function(xhr, textStatus, errorThrown) {             
+					console.log("error:", xhr, textStatus, errorThrown);
+				}
+			});
 		}
 		
-		$.ajax({
-			url: 'https://api.mlab.com/api/1/databases/rhinomotor2017/collections/'+o.nowPage+'/'+_now._id.$oid+'?apiKey='+ webData.mlabApikey,
-			type: 'PUT',
-			contentType: 'application/json',
-			data:JSON.stringify(_now),
-			success: function(data) {
-				o.uploadImgTrue = o.UploadImg ='';
-				alert('新增成功');
-				getDataCollection(o.nowPage,carsfunction,o.nowDataBrands);
-			},error: function(xhr, textStatus, errorThrown) {             
-				console.log("error:", xhr, textStatus, errorThrown);
-			}
-		});
+		
 	}
 	function deleteImg(_n,_num){
 		if(o.nowPage == 'carsPage'){
@@ -462,20 +628,40 @@
 	}
 	function changeRecommend(_num){
 		var _now = o.nowData[o.nowDataBrands];
-		if(_now.cars[_num].recommend) _now.cars[_num].recommend = false;
-		else _now.cars[_num].recommend = true;
+		//cars
+		if(webData.wrp.hasClass('cars')){
+			if(_now.cars[_num].recommend) _now.cars[_num].recommend = false;
+			else _now.cars[_num].recommend = true;
+			$.ajax({
+				url: 'https://api.mlab.com/api/1/databases/rhinomotor2017/collections/'+o.nowPage+'/'+_now._id.$oid+'?apiKey='+ webData.mlabApikey,
+				type: 'PUT',
+				contentType: 'application/json',
+				data:JSON.stringify(_now),
+				success: function(data) {
+					getDataCollection(o.nowPage,carsfunction,o.nowDataBrands);
+				},error: function(xhr, textStatus, errorThrown) {             
+					console.log("error:", xhr, textStatus, errorThrown);
+				}
+			});
+		}
+		//press
+		else if(webData.wrp.hasClass('press')){
+			if(_now.press[_num].recommend) _now.press[_num].recommend = false;
+			else _now.press[_num].recommend = true;
+			$.ajax({
+				url: 'https://api.mlab.com/api/1/databases/rhinomotor2017/collections/'+o.nowPage+'/'+_now._id.$oid+'?apiKey='+ webData.mlabApikey,
+				type: 'PUT',
+				contentType: 'application/json',
+				data:JSON.stringify(_now),
+				success: function(data) {
+					getDataCollection(o.nowPage,pressfunction,o.nowDataBrands);
+				},error: function(xhr, textStatus, errorThrown) {             
+					console.log("error:", xhr, textStatus, errorThrown);
+				}
+			});
+		}
 		
-		$.ajax({
-			url: 'https://api.mlab.com/api/1/databases/rhinomotor2017/collections/'+o.nowPage+'/'+_now._id.$oid+'?apiKey='+ webData.mlabApikey,
-			type: 'PUT',
-			contentType: 'application/json',
-			data:JSON.stringify(_now),
-			success: function(data) {
-				getDataCollection(o.nowPage,carsfunction,o.nowDataBrands);
-			},error: function(xhr, textStatus, errorThrown) {             
-				console.log("error:", xhr, textStatus, errorThrown);
-			}
-		});
+		
 	}
 	/*=====================*/
 	/*
