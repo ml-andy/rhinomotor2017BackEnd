@@ -189,7 +189,7 @@
 			}
 		}
 	}
-	&.index,&.cars{
+	&.main,&.cars,&.press{
 		min-width: 1200px;
 		background-color: #efefef;
 	}
@@ -312,6 +312,10 @@
 						padding: 3px;
 						margin-right: 1%;
 						margin-bottom: 1%;
+						&.indexImgInput{
+							font-size: 12px;
+							line-height: 23px;
+						}
 					}
 					textarea{
 						@include r(49%);
@@ -430,6 +434,12 @@
 			}
 			ul{
 				@include r;
+				&.main{
+					li img{
+						max-width: 100%;
+						height: auto;
+					}
+				}
 				li{
 					@include r;
 					box-sizing:border-box;
