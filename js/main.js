@@ -55,7 +55,7 @@
 	
 
 	$(window).load(function(){
-		console.log('v 4.57');
+		console.log('v 4.59');
 		if(checkLogin()){
 			try{
 				webData.imgurToken = window.location.href.split('#')[1].split('&')[0].replace('access_token=','');
