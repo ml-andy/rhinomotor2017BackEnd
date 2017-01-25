@@ -588,7 +588,7 @@
 			});
 		}
 		//press
-		else if(o.nowPage == 'carsPage'){
+		else if(o.nowPage == 'pressPage'){
 			_now.press[_num].photo.splice(_n,1);
 			$.ajax({
 				url: 'https://api.mlab.com/api/1/databases/rhinomotor2017/collections/'+o.nowPage+'/'+_now._id.$oid+'?apiKey='+ webData.mlabApikey,
