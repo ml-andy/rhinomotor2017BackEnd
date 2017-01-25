@@ -474,25 +474,29 @@
 		}
 		//main
 		else if(webData.wrp.hasClass('main')){
-			var _now = o.nowData[_n];
-			_now.bTitle=_tmp.find('.bTitle').find('textarea').val().replace(/\n\r?/g, '<br>');
-			_now.sTitle=_tmp.find('.sTitle').find('textarea').val().replace(/\n\r?/g, '<br>');
-			_now.href=_tmp.find('.href').find('textarea').val().replace(/\n\r?/g, '<br>');
-			_now.photo=o.uploadMainImg;
-			
-			$.ajax({
-				url: 'https://api.mlab.com/api/1/databases/rhinomotor2017/collections/'+o.nowPage+'/'+_now._id.$oid+'?apiKey='+ webData.mlabApikey,
-				type: 'PUT',
-				contentType: 'application/json',
-				data:JSON.stringify(_now),
-				success: function(data) {
-					getDataCollection(o.nowPage,mainfunction);
-				},error: function(xhr, textStatus, errorThrown) {             
-					console.log("error:", xhr, textStatus, errorThrown);
-				}
-			});
+			o.nowDataMainNum = _n;
+			uploadimgtoImgur(o.uploadMainImg,motifyPaperEndIndex);
 		}
 	}	
+	function motifyPaperEndIndex(){
+		var _now = o.nowData[o.nowDataMainNum];
+		_now.bTitle=_tmp.find('.bTitle').find('textarea').val().replace(/\n\r?/g, '<br>');
+		_now.sTitle=_tmp.find('.sTitle').find('textarea').val().replace(/\n\r?/g, '<br>');
+		_now.href=_tmp.find('.href').find('textarea').val().replace(/\n\r?/g, '<br>');
+		_now.photo=o.uploadImgTrue;
+		
+		$.ajax({
+			url: 'https://api.mlab.com/api/1/databases/rhinomotor2017/collections/'+o.nowPage+'/'+_now._id.$oid+'?apiKey='+ webData.mlabApikey,
+			type: 'PUT',
+			contentType: 'application/json',
+			data:JSON.stringify(_now),
+			success: function(data) {
+				getDataCollection(o.nowPage,mainfunction);
+			},error: function(xhr, textStatus, errorThrown) {             
+				console.log("error:", xhr, textStatus, errorThrown);
+			}
+		});
+	}
 	function addPaper(){
 		var _o = $('.addbox .box');
 		//cars
