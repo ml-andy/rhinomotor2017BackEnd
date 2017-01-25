@@ -479,6 +479,7 @@
 		}
 	}	
 	function motifyPaperEndIndex(){
+		var _tmp = $('.list').find('li').eq(o.nowDataMainNum);
 		var _now = o.nowData[o.nowDataMainNum];
 		_now.bTitle=_tmp.find('.bTitle').find('textarea').val().replace(/\n\r?/g, '<br>');
 		_now.sTitle=_tmp.find('.sTitle').find('textarea').val().replace(/\n\r?/g, '<br>');
