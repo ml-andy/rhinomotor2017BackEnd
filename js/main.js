@@ -569,7 +569,6 @@
 			});
 		}
 		
-		
 	}
 	function deleteImg(_n,_num){
 		if(o.nowPage == 'carsPage'){
