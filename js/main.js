@@ -144,12 +144,12 @@
 			o.nowUploadImgNum = $(this).parent().parent().parent().parent().find('.slbox').text();
 			uploadimgtoImgur(o.UploadImg,insertImg);
 		});
-		// $('.photoDataBox .delet').click(function(){
-		// 	if(window.confirm('確定刪除?')){
-		// 		showLoading(true);
-		// 		deleteImg($(this).parent().parent().index(),$(this).parent().parent().parent().parent().parent().parent().find('.slbox').text())
-		// 	}
-		// });
+		$('.photoDataBox .delet').click(function(){
+			if(window.confirm('確定刪除?')){
+				showLoading(true);
+				deleteImg($(this).parent().parent().index(),$(this).parent().parent().parent().parent().parent().parent().find('.slbox').text())
+			}
+		});
 
 		$('.menu ul li .box a').removeClass('on').eq(o.nowDataBrands).addClass('on');
 		showLoading(false);
@@ -571,22 +571,39 @@
 		
 	}
 	function deleteImg(_n,_num){
+		var _now = o.nowData[o.nowDataBrands];
+		//cars
 		if(o.nowPage == 'carsPage'){
-			var _now = o.nowData[o.nowDataBrands];
 			_now.cars[_num].carsImg.splice(_n,1);
+			$.ajax({
+				url: 'https://api.mlab.com/api/1/databases/rhinomotor2017/collections/'+o.nowPage+'/'+_now._id.$oid+'?apiKey='+ webData.mlabApikey,
+				type: 'PUT',
+				contentType: 'application/json',
+				data:JSON.stringify(_now),
+				success: function(data) {
+					getDataCollection(o.nowPage,carsfunction,o.nowDataBrands);
+				},error: function(xhr, textStatus, errorThrown) {             
+					console.log("error:", xhr, textStatus, errorThrown);
+				}
+			});
+		}
+		//press
+		else if(o.nowPage == 'carsPage'){
+			_now.press[_num].photo.splice(_n,1);
+			$.ajax({
+				url: 'https://api.mlab.com/api/1/databases/rhinomotor2017/collections/'+o.nowPage+'/'+_now._id.$oid+'?apiKey='+ webData.mlabApikey,
+				type: 'PUT',
+				contentType: 'application/json',
+				data:JSON.stringify(_now),
+				success: function(data) {
+					getDataCollection(o.nowPage,pressfunction,o.nowDataBrands);
+				},error: function(xhr, textStatus, errorThrown) {             
+					console.log("error:", xhr, textStatus, errorThrown);
+				}
+			});
 		}
 		
-		$.ajax({
-			url: 'https://api.mlab.com/api/1/databases/rhinomotor2017/collections/'+o.nowPage+'/'+_now._id.$oid+'?apiKey='+ webData.mlabApikey,
-			type: 'PUT',
-			contentType: 'application/json',
-			data:JSON.stringify(_now),
-			success: function(data) {
-				getDataCollection(o.nowPage,carsfunction,o.nowDataBrands);
-			},error: function(xhr, textStatus, errorThrown) {             
-				console.log("error:", xhr, textStatus, errorThrown);
-			}
-		});
+		
 	}
 	function addEquipped(_num,_txt){
 		if(o.nowPage == 'carsPage'){
