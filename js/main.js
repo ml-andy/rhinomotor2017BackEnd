@@ -81,28 +81,28 @@
 		o.cot = $('.content .list ul');
 		o.cot.html('');
 		for(k in data){
-			o.cot.append('<li><div class="mainData"><div class="slbox">'+k+'</div><div class="column photo"><img src="'+ data[k].photo+'"></div><div class="column bTitle">'+ data[k].bTitle +'</div><div class="column sTitle">'+ data[k].sTitle+'</div><div class="column href">'+ data[k].href+'</div><div class="column textColor">'+data[k].textColor+'</div><div class="function"><a class="motify" href="javascript:;"></a><a class="delete" href="javascript:;"></a></div></div><div class="secData"></div></li>');
+			o.cot.append('<li><div class="mainData"><div class="slbox">'+k+'</div><div class="column photo main"><img src="'+ data[k].photo+'"></div><div class="column bTitle">'+ data[k].bTitle +'</div><div class="column sTitle">'+ data[k].sTitle+'</div><div class="column href">'+ data[k].href+'</div><div class="column textColor">'+data[k].textColor+'</div><div class="function"><a class="motify" href="javascript:;"></a><a class="delete" href="javascript:;"></a></div></div><div class="secData"></div></li>');
 		}
 		$('.function .delete').click(function(){			
 			if($(this).parent().find('.motify').hasClass('on')){
 				$(this).parent().find('.motify').removeClass('on');
-				// motifyPaper(false,$(this).parent().parent().find('.slbox').text());
+				motifyPaper(false,$(this).parent().parent().find('.slbox').text());
 			}
 			else{
 				if(window.confirm("確定刪除嗎?")) deletPaper($(this).parent().parent().find('.slbox').text());
 			}
 		});
 		
-		// $('.function .motify').click(function(){			
-		// 	if($(this).hasClass('on')){
-		// 		$(this).removeClass('on');				
-		// 		motifyPaperEnd($(this).parent().parent().find('.slbox').text());
-		// 	}
-		// 	else{
-		// 		$(this).addClass('on');
-		// 		motifyPaper(true,$(this).parent().parent().find('.slbox').text());
-		// 	}
-		// });
+		$('.function .motify').click(function(){			
+			if($(this).hasClass('on')){
+				$(this).removeClass('on');				
+				motifyPaperEnd($(this).parent().parent().find('.slbox').text());
+			}
+			else{
+				$(this).addClass('on');
+				motifyPaper(true,$(this).parent().parent().find('.slbox').text());
+			}
+		});
 		
 
 		// //recommend
@@ -412,6 +412,23 @@
 				_tmp.find('.mainContent').html(_tmp.find('.mainContent textarea').val().replace(/\n\r?/g, '<br>'));
 			}
 		}
+		//main
+		else if(webData.wrp.hasClass('main')){
+			var _tmp = $('.list').find('li').eq(_n);
+			if(_t){
+				_tmp.find('.bTitle').html('<textarea>'+_tmp.find('.bTitle').html().replace(/<br>/g,'\n')+'</textarea>');
+				_tmp.find('.sTitle').html('<textarea>'+_tmp.find('.sTitle').html().replace(/<br>/g,'\n')+'</textarea>');
+				_tmp.find('.href').html('<textarea>'+_tmp.find('.href').html().replace(/<br>/g,'\n')+'</textarea>');
+				_tmp.find('.photo').prepend('<input type="file" name="file" id="imgInputMotify" accept="image/*" capture="camera"><label class="imgInputlabel" for="imgInputMotify"><span>點擊更換</span></label>');
+				$("#imgInputMotify").change(function(){readURLMain(this,$(this));});
+				// o.uploadMainImg
+			}else{
+				_tmp.find('.bTitle').html(_tmp.find('.bTitle textarea').val().replace(/\n\r?/g, '<br>'));
+				_tmp.find('.sTitle').html(_tmp.find('.sTitle textarea').val().replace(/\n\r?/g, '<br>'));
+				_tmp.find('.href').html(_tmp.find('.href textarea').val().replace(/\n\r?/g, '<br>'));
+				_tmp.find('.photo').html('<img src="' + o.nowData[_n].photo + '">');
+			}
+		}
 	}
 	function motifyPaperEnd(_n){		
 		showLoading(true);
@@ -450,6 +467,26 @@
 				data:JSON.stringify(_now),
 				success: function(data) {
 					getDataCollection(o.nowPage,pressfunction,o.nowDataBrands);
+				},error: function(xhr, textStatus, errorThrown) {             
+					console.log("error:", xhr, textStatus, errorThrown);
+				}
+			});
+		}
+		//main
+		else if(webData.wrp.hasClass('main')){
+			var _now = o.nowData[_n];
+			_now.bTitle=_tmp.find('.bTitle').find('textarea').val().replace(/\n\r?/g, '<br>');
+			_now.sTitle=_tmp.find('.sTitle').find('textarea').val().replace(/\n\r?/g, '<br>');
+			_now.href=_tmp.find('.href').find('textarea').val().replace(/\n\r?/g, '<br>');
+			_now.photo=o.uploadMainImg;
+			
+			$.ajax({
+				url: 'https://api.mlab.com/api/1/databases/rhinomotor2017/collections/'+o.nowPage+'/'+_now._id.$oid+'?apiKey='+ webData.mlabApikey,
+				type: 'PUT',
+				contentType: 'application/json',
+				data:JSON.stringify(_now),
+				success: function(data) {
+					getDataCollection(o.nowPage,mainfunction);
 				},error: function(xhr, textStatus, errorThrown) {             
 					console.log("error:", xhr, textStatus, errorThrown);
 				}
@@ -797,6 +834,18 @@
 		
 		
 	}
+	function readURLMain(input,_o) {
+		if(webData.wrp.hasClass('main')){
+			if (input.files && input.files[0]) {
+	            var reader = new FileReader();            
+	            reader.onload = function (e) {
+	            	o.uploadMainImg = e.target.result.replace(/.*,/, '');
+	            	_o.parent().addClass('on').find('img').addClass('on').attr('src',e.target.result);
+	            }
+	            reader.readAsDataURL(input.files[0]);
+	        }
+		}
+    }
 	/*=====================*/
 	/*
 	function motifyPaperFinal(){
@@ -962,41 +1011,7 @@
             reader.readAsDataURL(input.files[0]);
         }
 	}
-	function readURL(input,_o,_n) {
-		if(webData.wrp.hasClass('about') || webData.wrp.hasClass('learn') || webData.wrp.hasClass('link')){
-			if (input.files && input.files[0]) {
-	            var reader = new FileReader();            
-	            reader.onload = function (e) {
-	            	webData.uploadImg = e.target.result.replace(/.*,/, '');
-	            	_o.parent().addClass('on').find('img').addClass('on').attr('src',e.target.result);
-	            }
-	            reader.readAsDataURL(input.files[0]);
-	        }
-		}
-		else if(webData.wrp.hasClass('news')){
-			if (input.files && input.files[0]) {
-	            var reader = new FileReader();            
-	            reader.onload = function (e) {
-	            	if(_n == 0) webData.uploadImgbpic = e.target.result.replace(/.*,/, '');
-	            	else webData.uploadImgspic = e.target.result.replace(/.*,/, '');	            	
-	            	_o.parent().addClass('on').find('img').addClass('on').attr('src',e.target.result);
-	            }
-	            reader.readAsDataURL(input.files[0]);
-	        }
-		}
-		else if(webData.wrp.hasClass('index')){
-			if (input.files && input.files[0]) {
-	            var reader = new FileReader();            
-	            reader.onload = function (e) {
-	            	if(_n == 0) webData.uploadImgindexbannerpic = e.target.result.replace(/.*,/, '');
-	            	else webData.uploadImgindexphotopic = e.target.result.replace(/.*,/, '');	            	
-	            	console.log(_o.parent().addClass('on').find('img').addClass('on'));
-	            	_o.parent().addClass('on').find('img').addClass('on').attr('src',e.target.result);
-	            }
-	            reader.readAsDataURL(input.files[0]);
-	        }
-		}        
-    }
+	
 	function insertPaper(){
 		if(webData.wrp.hasClass('about')){
 			webData.posttitleval = $('.new .posttitle').val();

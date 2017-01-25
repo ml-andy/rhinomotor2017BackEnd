@@ -661,6 +661,22 @@
 						box-sizing:border-box;
 						padding: 10px;
 					}
+					.photo.main{
+						input{
+							display: none;
+						}
+						label{
+							@include alt;
+							z-index: 1;
+							background-color: rgba(0,0,0,0.8);
+							cursor: pointer;
+							span{
+								@include am(auto,auto);
+								@include font(12px,12px,#fff);
+							}
+						}
+
+					}
 					.function{
 						@include art(150px,100%);
 						@include font(13px,35px,#ffffff);
