@@ -483,7 +483,7 @@
 			url: 'https://api.mlab.com/api/1/databases/rhinomotor2017/collections/'+o.nowPage+'/'+ o.nowData[o.nowDataMainNum]._id.$oid+'?apiKey='+ webData.mlabApikey,
 			type: 'PUT',
 			contentType: 'application/json',
-			data:JSON.stringify(_now),
+			data:JSON.stringify(o.nowData[o.nowDataMainNum]),
 			success: function(data) {
 				o.uploadMainImg = '';
 				o.uploadImgTrue = '';
