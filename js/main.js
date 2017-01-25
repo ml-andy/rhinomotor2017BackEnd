@@ -55,7 +55,7 @@
 	
 
 	$(window).load(function(){
-		console.log('v 4.53');
+		console.log('v 4.57');
 		if(checkLogin()){
 			try{
 				webData.imgurToken = window.location.href.split('#')[1].split('&')[0].replace('access_token=','');
@@ -106,29 +106,10 @@
 			}
 		});
 		
-
 		// //recommend
 		// $('.recommend .change').click(function(){
 		// 	showLoading(true);
 		// 	changeRecommend($(this).parent().parent().parent().find('.slbox').text())
-		// });
-
-		// //photo
-		// $(".pressImgInput").change(function(){ReadURL(this);});
-		// $('.addImgBox .submit').click(function(){
-		// 	if(o.UploadImg==''){
-		// 		alert('請先選擇檔案');
-		// 		return;
-		// 	}
-		// 	showLoading(true);
-		// 	o.nowUploadImgNum = $(this).parent().parent().parent().parent().find('.slbox').text();
-		// 	uploadimgtoImgur(o.UploadImg,insertImg);
-		// });
-		// $('.photoDataBox .delet').click(function(){
-		// 	if(window.confirm('確定刪除?')){
-		// 		showLoading(true);
-		// 		deleteImg($(this).parent().parent().index(),$(this).parent().parent().parent().parent().parent().parent().find('.slbox').text())
-		// 	}
 		// });
 
 		showLoading(false);
@@ -479,13 +460,12 @@
 			o.nowData[o.nowDataMainNum].bTitle=_tmp.find('.bTitle').find('textarea').val().replace(/\n\r?/g, '<br>');
 			o.nowData[o.nowDataMainNum].sTitle=_tmp.find('.sTitle').find('textarea').val().replace(/\n\r?/g, '<br>');
 			o.nowData[o.nowDataMainNum].href=_tmp.find('.href').find('textarea').val().replace(/\n\r?/g, '<br>');
-
 			if(o.uploadMainImg==''){
 				$.ajax({
 					url: 'https://api.mlab.com/api/1/databases/rhinomotor2017/collections/'+o.nowPage+'/'+ o.nowData[o.nowDataMainNum]._id.$oid+'?apiKey='+ webData.mlabApikey,
 					type: 'PUT',
 					contentType: 'application/json',
-					data:JSON.stringify(_now),
+					data:JSON.stringify(o.nowData[o.nowDataMainNum]),
 					success: function(data) {
 						o.uploadMainImg = '';
 						o.uploadImgTrue = '';
