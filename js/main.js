@@ -83,6 +83,15 @@
 		for(k in data){
 			o.cot.append('<li><div class="mainData"><div class="slbox">'+k+'</div><div class="column photo"><img src="'+ data[k].photo+'"></div><div class="column bTitle">'+ data[k].bTitle +'</div><div class="column sTitle">'+ data[k].sTitle+'</div><div class="column href">'+ data[k].href+'</div><div class="column textColor">'+data[k].textColor+'</div><div class="function"><a class="motify" href="javascript:;"></a><a class="delete" href="javascript:;"></a></div></div><div class="secData"></div></li>');
 		}
+		$('.function .delete').click(function(){			
+			if($(this).parent().find('.motify').hasClass('on')){
+				$(this).parent().find('.motify').removeClass('on');
+				// motifyPaper(false,$(this).parent().parent().find('.slbox').text());
+			}
+			else{
+				if(window.confirm("確定刪除嗎?")) deletPaper($(this).parent().parent().find('.slbox').text());
+			}
+		});
 		
 		// $('.function .motify').click(function(){			
 		// 	if($(this).hasClass('on')){
@@ -94,15 +103,7 @@
 		// 		motifyPaper(true,$(this).parent().parent().find('.slbox').text());
 		// 	}
 		// });
-		// $('.function .delete').click(function(){			
-		// 	if($(this).parent().find('.motify').hasClass('on')){
-		// 		$(this).parent().find('.motify').removeClass('on');
-		// 		motifyPaper(false,$(this).parent().parent().find('.slbox').text());
-		// 	}
-		// 	else{
-		// 		if(window.confirm("確定刪除嗎?")) deletPaper($(this).parent().parent().find('.slbox').text());
-		// 	}
-		// });
+		
 
 		// //recommend
 		// $('.recommend .change').click(function(){
@@ -562,6 +563,21 @@
 				success: function(data) {
 					getDataCollection(o.nowPage,pressfunction,o.nowDataBrands);
 				},error: function(xhr, textStatus, errorThrown) {             
+					console.log("error:", xhr, textStatus, errorThrown);
+				}
+			});
+		}
+		else if(webData.wrp.hasClass('main')){
+			$.ajax({
+				url: 'https://api.mlab.com/api/1/databases/rhinomotor2017/collections/'+o.nowPage+'/'+o.nowData[_n]._id.$oid+'?apiKey='+ webData.mlabApikey,
+				type: "DELETE",
+				async: true,
+				timeout: 300000,
+				contentType: 'application/json',			
+				success: function(data) {
+					location.reload();
+				},error: function(xhr, textStatus, errorThrown) {      
+					location.reload();       
 					console.log("error:", xhr, textStatus, errorThrown);
 				}
 			});
