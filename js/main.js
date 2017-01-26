@@ -11,7 +11,8 @@
 		defaultPressImg:'https://ml-andy.github.io/RhinoMotor/andy/images/press_b_slide1.jpg',
 		UploadImg:'',
 		indexUploadImg:'',
-		uploadMainImg:''
+		uploadMainImg:'',
+		offsetTop:$('.content .list .t').offset().top
 	}
 
 	//init
@@ -60,7 +61,11 @@
 	$('.addbox .submit').click(function(){
 		addPaper();
 	});
-	
+	// ontop
+	$(window).on('scroll',function(){
+		if(window.pageYOffset>= o.offsetTop) $('.content .list .t').addClass('ontop');
+		else $('.content .list .t').removeClass('ontop');
+	});
 
 	$(window).load(function(){
 		console.log('v 16.50');

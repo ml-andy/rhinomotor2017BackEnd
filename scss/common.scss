@@ -438,11 +438,17 @@
 				}
 			}
 			.t{
-				@include r;
+				@include alt(100%,35px);
 				background-color: #1e1e1e;
 				box-sizing:border-box;
 				padding-left: 35px;
 				padding-right: 150px;
+				z-index: 9;
+				&.ontop{
+					position: fixed;
+					width: calc(100% - 280px);
+					left: 255px;
+				}
 				.slbox{
 					@include alt(35px,100%);
 					@include font(13px,35px,#ffffff);
@@ -468,6 +474,7 @@
 			}
 			ul{
 				@include r;
+				margin-top: 35px;
 				&.main{
 					li img{
 						max-width: 100%;
