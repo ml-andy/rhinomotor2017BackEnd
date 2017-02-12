@@ -39,6 +39,10 @@
 		o.nowPage = 'user';
 		getDataCollection(o.nowPage,userfunction);
 	}
+	else if(webData.wrp.hasClass('member')){
+		o.nowPage = 'memberData';
+		getDataCollection(o.nowPage,memberfunction);
+	}
 	else showLoading(false);
 
 	//Addlistener
@@ -83,6 +87,41 @@
 	});
 
 	//Event
+	function memberfunction(data,nowDataBrands){
+		o.nowData = data;
+		webData.motifyPapering = false;
+		//content list
+		insertmemberdata();
+	}
+	function insertmemberdata(){
+		var data = o.nowData;
+		o.cot = $('.content .list ul');
+		o.cot.html('');
+		for(k in data){
+			o.cot.append('<li><div class="mainData"><div class="slbox">'+k+'</div><div class="column username">'+ data[k].username +'</div><div class="column userpassword">'+ data[k].userpassword+'</div><div class="column useremail">'+ data[k].useremail +'</div><div class="function"><a class="motify" href="javascript:;"></a><a class="delete" href="javascript:;"></a></div></div><div class="secData"></div></li>');
+		}
+		$('.function .delete').click(function(){			
+			if($(this).parent().find('.motify').hasClass('on')){
+				$(this).parent().find('.motify').removeClass('on');
+				motifyPaper(false,$(this).parent().parent().find('.slbox').text());
+			}
+			else{
+				if(window.confirm("確定刪除嗎?")) deletPaper($(this).parent().parent().find('.slbox').text());
+			}
+		});
+		
+		$('.function .motify').click(function(){			
+			if($(this).hasClass('on')){
+				$(this).removeClass('on');				
+				motifyPaperEnd($(this).parent().parent().find('.slbox').text());
+			}
+			else{
+				$(this).addClass('on');
+				motifyPaper(true,$(this).parent().parent().find('.slbox').text());
+			}
+		});
+		showLoading(false);
+	}
 	function userfunction(data,nowDataBrands){
 		o.nowData = data;
 		webData.motifyPapering = false;
@@ -526,6 +565,19 @@
 				_tmp.find('.useremail').html(_tmp.find('.useremail input').val());
 			}
 		}
+		//member
+		else if(webData.wrp.hasClass('member')){
+			var _tmp = $('.list').find('li').eq(_n);
+			if(_t){
+				_tmp.find('.username').html('<input value="'+_tmp.find('.username').html()+'">');
+				_tmp.find('.userpassword').html('<input value="'+_tmp.find('.userpassword').html()+'">');
+				_tmp.find('.useremail').html('<input value="'+_tmp.find('.useremail').html()+'">');
+			}else{
+				_tmp.find('.username').html(_tmp.find('.username input').val());
+				_tmp.find('.userpassword').html(_tmp.find('.userpassword input').val());
+				_tmp.find('.useremail').html(_tmp.find('.useremail input').val());
+			}
+		}
 	}
 	function motifyPaperEnd(_n){		
 		showLoading(true);
@@ -623,6 +675,23 @@
 				data:JSON.stringify(o.nowData[_n]),
 				success: function(data) {
 					getDataCollection(o.nowPage,userfunction);
+				},error: function(xhr, textStatus, errorThrown) {             
+					console.log("error:", xhr, textStatus, errorThrown);
+				}
+			});
+		}
+		//member
+		else if(webData.wrp.hasClass('member')){
+			o.nowData[_n].userpassword=_tmp.find('.userpassword').find('input').val();
+			o.nowData[_n].username=_tmp.find('.username').find('input').val();
+			o.nowData[_n].useremail=_tmp.find('.useremail').find('input').val();
+			$.ajax({
+				url: 'https://api.mlab.com/api/1/databases/rhinomotor2017/collections/'+o.nowPage+'/'+ o.nowData[_n]._id.$oid+'?apiKey='+ webData.mlabApikey,
+				type: 'PUT',
+				contentType: 'application/json',
+				data:JSON.stringify(o.nowData[_n]),
+				success: function(data) {
+					getDataCollection(o.nowPage,memberfunction);
 				},error: function(xhr, textStatus, errorThrown) {             
 					console.log("error:", xhr, textStatus, errorThrown);
 				}
@@ -818,6 +887,21 @@
 			});
 		}
 		else if(webData.wrp.hasClass('user')){
+			$.ajax({
+				url: 'https://api.mlab.com/api/1/databases/rhinomotor2017/collections/'+o.nowPage+'/'+o.nowData[_n]._id.$oid+'?apiKey='+ webData.mlabApikey,
+				type: "DELETE",
+				async: true,
+				timeout: 300000,
+				contentType: 'application/json',			
+				success: function(data) {
+					location.reload();
+				},error: function(xhr, textStatus, errorThrown) {      
+					location.reload();       
+					console.log("error:", xhr, textStatus, errorThrown);
+				}
+			});
+		}
+		else if(webData.wrp.hasClass('member')){
 			$.ajax({
 				url: 'https://api.mlab.com/api/1/databases/rhinomotor2017/collections/'+o.nowPage+'/'+o.nowData[_n]._id.$oid+'?apiKey='+ webData.mlabApikey,
 				type: "DELETE",
