@@ -261,7 +261,15 @@
 	function insertPressdata(_n){
 		var data = o.nowData;
 		o.nowDataBrands = _n;
-		$('.title').html(data[_n].brands);
+		try{
+			$('.title').html(data[_n].brands);
+		}catch(err){
+			$('.addbox').remove();
+			$('.list').remove();
+			$('.deleteBrands').remove();
+			showLoading(false);
+			return;
+		}
 
 		o.cot = $('.content .list ul');
 		o.cot.html('');
@@ -352,8 +360,15 @@
 	function insertCarsdata(_n){
 		var data = o.nowData;
 		o.nowDataBrands = _n;
-		$('.title').html(data[_n].brands);
-
+		try{
+			$('.title').html(data[_n].brands);
+		}catch(err){
+			$('.addbox').remove();
+			$('.list').remove();
+			$('.deleteBrands').remove();
+			showLoading(false);
+			return;
+		}
 		o.cot = $('.content .list ul');
 		o.cot.html('');
 		for(k in data[o.nowDataBrands].cars){
