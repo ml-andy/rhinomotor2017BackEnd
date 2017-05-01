@@ -611,7 +611,7 @@
 							@include r(50%);
 							.addImgBox{
 								@include r(100%,35px);
-								width: calc(100% - 10px);
+								width: calc(100% - 90px);
 								padding: 5px 135px 5px 5px;
 								box-sizing: border-box;
 								background-color: #666;
@@ -634,6 +634,29 @@
 									}
 								}
 							}
+							.changePhotoOrder{
+								@include r(70px,35px);
+								background-color: #000;
+								margin-top: 10px;
+								margin-left: 10px;
+								cursor: pointer;
+
+								&:before{
+									@include alt;
+									@include font(12px,35px,#fff);
+									content:"更改順序";
+									text-align: center;
+								}
+
+								&:hover{
+									opacity: 0.8;
+								}
+
+								&.on{
+									&:before{ content:"確定順序"; }
+									background-color: seagreen;
+								}
+							}
 							.photoDataBox{
 								@include r;
 							}
@@ -643,15 +666,15 @@
 								padding: 5px 0;
 								margin-right: 1%;
 								.photo{
-									@include r;
-									min-height: 30px;
+									@include r(100%,50px);
+									overflow: hidden;
 									img{
 										width: 100%;
 										height: auto;
 									}
 								}
 								.btn{
-									@include alt;
+									@include alt(100%,55px);
 									z-index: 1;
 									a{
 										@include alt;
@@ -668,6 +691,16 @@
 										&:hover{
 											opacity: 1;
 										}
+									}
+								}
+								.order{
+									@include r;
+									margin-top: 5px;
+
+									span,input{
+										@include r;
+										@include font(12px,21px,#000);
+										text-align: center;
 									}
 								}
 							}

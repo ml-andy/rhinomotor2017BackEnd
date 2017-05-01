@@ -72,7 +72,7 @@
 	});
 
 	$(window).load(function(){
-		console.log('v 16.50');
+		console.log('v 170502');
 		if(checkLogin()){
 			try{
 				webData.imgurToken = window.location.href.split('#')[1].split('&')[0].replace('access_token=','');
@@ -384,9 +384,9 @@
 			o.cot.find('li:last .secData').append('<div class="recommend" data-recd="'+data[o.nowDataBrands].cars[k].recommend+'"><div class="st">推薦</div><span>'+_txt+'</span><div class="btn change">更改</div></div>');
 
 			//carsImg
-			o.cot.find('li:last .secData').append('<div class="carsImg"><div class="st">圖片</div><div class="addImgBox"><input type="file" name="file" class="carsImgInput" accept="image/*" capture="camera"><div class="submit">確定新增</div></div><div class="photoDataBox"></div></div>');
+			o.cot.find('li:last .secData').append('<div class="carsImg"><div class="st">圖片</div><div class="addImgBox"><input type="file" name="file" class="carsImgInput" accept="image/*" capture="camera"><div class="submit">確定新增</div></div><div class="changePhotoOrder"></div><div class="photoDataBox"></div></div>');
 			for(x in data[o.nowDataBrands].cars[k].carsImg){
-				o.cot.find('li:last .secData .carsImg .photoDataBox').append('<div class="photoData"><div class="photo"><img src="'+data[o.nowDataBrands].cars[k].carsImg[x]+'"></div><div class="btn"><a href="javascript:;" class="delet"></a></div></div>');
+				o.cot.find('li:last .secData .carsImg .photoDataBox').append('<div class="photoData"><div class="photo"><img src="'+data[o.nowDataBrands].cars[k].carsImg[x]+'"></div><div class="btn"><a href="javascript:;" class="delet"></a></div><div class="order"><span>'+x+'</span></div></div>');
 			}
 		}
 		
@@ -448,12 +448,74 @@
 				deleteImg($(this).parent().parent().index(),$(this).parent().parent().parent().parent().parent().parent().find('.slbox').text())
 			}
 		});
+		$('.changePhotoOrder').click(function(){
+			if($(this).hasClass('on')) changePhotoOrder(true,$(this));
+			else changePhotoOrder(false,$(this));
+		});
 
 		$('.menu ul li .box a').removeClass('on').eq(o.nowDataBrands).addClass('on');
 		showLoading(false);
 	}
 
-	
+	function changePhotoOrder(_t,_o){
+		if(_t){
+			_o.removeClass('on');
+			var $photoData = _o.parent().find('.photoDataBox .photoData');
+			var newOrder = [];
+			for(var i=0; i<$photoData.length; i++){
+				newOrder.push($photoData.eq(i).find('.order input').val());
+			}
+			if(hasDuplicates(newOrder)) alert('有重複的順序，請修正。');
+			else{
+				var newCars = [];
+				newOrder.sort(function(a, b){return a-b});
+				for(var k=0; k<newOrder.length; k++){
+					for(var i=0; i<$photoData.length; i++){
+						var obj = $photoData.eq(i);
+						if(obj.find('.order input').val() === newOrder[k]) newCars.push(obj.find('.photo img').attr('src'));
+					}
+				}
+				motifyPaperEndCarsImg(_o.parent().parent().parent().find('.mainData .slbox').text(),newCars);
+			}
+
+		}else{
+			_o.addClass('on');
+			var $photoData = _o.parent().find('.photoDataBox .photoData');
+			var photomax = $photoData.length*1-1;
+			for(var i=0; i<$photoData.length; i++){
+				$photoData.eq(i).find('.order').html('<input type="number" min="0" max="'+ photomax +'" value="' + i +'">')
+			}
+		}
+	}
+	function hasDuplicates(array) {
+	    var valuesSoFar = [];
+	    for (var i = 0; i < array.length; ++i) {
+	        var value = array[i];
+	        if (valuesSoFar.indexOf(value) !== -1) {
+	            return true;
+	        }
+	        valuesSoFar.push(value);
+	    }
+	    return false;
+	}
+	function motifyPaperEndCarsImg(_n,_newCars){
+		showLoading(true);
+
+		var _now = o.nowData[o.nowDataBrands];
+		_now.cars[_n].carsImg=_newCars;
+
+		$.ajax({
+			url: 'https://api.mlab.com/api/1/databases/rhinomotor2017/collections/'+o.nowPage+'/'+_now._id.$oid+'?apiKey='+ webData.mlabApikey,
+			type: 'PUT',
+			contentType: 'application/json',
+			data:JSON.stringify(_now),
+			success: function(data) {
+				getDataCollection(o.nowPage,carsfunction,o.nowDataBrands);
+			},error: function(xhr, textStatus, errorThrown) {             
+				console.log("error:", xhr, textStatus, errorThrown);
+			}
+		});
+	}
 	function addBrands(_collectname,_brandsName){
 		var user_data = {
 			brands:_brandsName,
